@@ -1,0 +1,28 @@
+# main 정적 게이트를 조직 Godot 재사용 워크플로우에서 실행한다.
+name: Godot Checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: godot-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    uses: seorilabs/.github/.github/workflows/godot-checks.yml@ab9305632698fcb949d4c9df58cf18dbce73bef8
+    with:
+      godot_version: "4.7.2"
+      with_export_templates: false
+      runs_on: seorilabs-rpi-arm64
+      project_dir: "."
+      check_command: |
+        bash scripts/check_fleet_source_contract.sh
+        bash scripts/check_keeum.sh

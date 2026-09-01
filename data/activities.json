@@ -1,0 +1,150 @@
+{
+  "_note": "활동 데이터 리소스. axis=learn 은 성장 공식(기관×방법)으로 과목 델타 산출, axis=leisure 는 flat 스탯 델타. Remote Config 튜닝 대상.",
+  "activities": [
+    {
+      "id": "home_reading", "name": "그림책 읽어주기", "axis": "learn", "slot": "A",
+      "stage_min": "infant", "institution": "study", "method": "concept",
+      "subjects": ["korean"], "cost": 0, "tag": "home",
+      "desc": "무릎에 앉혀 그림책을 함께 읽어요. 부담 없이 언어의 씨앗을 심는 시간."
+    },
+    {
+      "id": "home_number", "name": "숫자·블록 놀이", "axis": "learn", "slot": "A",
+      "stage_min": "infant", "institution": "study", "method": "experience",
+      "subjects": ["math"], "cost": 0, "tag": "home",
+      "desc": "블록을 쌓으며 수 개념을 익혀요. 놀이처럼 배우니 스트레스가 없어요."
+    },
+    {
+      "id": "afterschool_class", "name": "방과후 교실", "axis": "learn", "slot": "A",
+      "stage_min": "elementary", "institution": "afterschool", "method": "group",
+      "subjects": ["korean", "math"], "cost": 0, "tag": "public",
+      "desc": "학교 방과후 프로그램. 무료지만 효율은 소박해요."
+    },
+    {
+      "id": "online_lecture", "name": "인강 (개념이해)", "axis": "learn", "slot": "A",
+      "stage_min": "elementary", "institution": "online", "method": "concept",
+      "subjects": ["english"], "cost": 40, "tag": "online",
+      "desc": "집에서 듣는 인터넷 강의. 저비용으로 개념을 다져요."
+    },
+    {
+      "id": "study_room", "name": "독서실 자기주도", "axis": "learn", "slot": "A",
+      "stage_min": "elementary", "institution": "study", "method": "self",
+      "subjects": ["korean", "social"], "cost": 20, "tag": "self",
+      "desc": "스스로 계획을 세워 공부해요. 느리지만 단단하고 스트레스가 적어요."
+    },
+    {
+      "id": "specialty_math_spartan", "name": "배치동 단과수학 (스파르타)", "axis": "learn", "slot": "A",
+      "stage_min": "elementary", "institution": "specialty", "method": "spartan",
+      "subjects": ["math"], "cost": 120, "tag": "academy",
+      "desc": "배치동 나수리 선생의 스파르타 수학. 성적 급등, 스트레스 폭증."
+    },
+    {
+      "id": "specialty_eng_preemptive", "name": "배치동 단과영어 (선행)", "axis": "learn", "slot": "A",
+      "stage_min": "elementary", "institution": "specialty", "method": "preemptive",
+      "subjects": ["english"], "cost": 110, "tag": "academy",
+      "desc": "도지문 선생의 선행 영어. 두 학기 앞선 진도로 밀어붙여요."
+    },
+    {
+      "id": "academy_drill", "name": "종합입시학원 (양치기)", "axis": "learn", "slot": "A",
+      "stage_min": "elementary", "institution": "academy", "method": "drill",
+      "subjects": ["korean", "english", "math", "science", "social"], "cost": 150, "tag": "academy",
+      "desc": "전 과목을 문제풀이로 돌리는 종합반. 얕고 넓게, 그리고 지쳐요."
+    },
+    {
+      "id": "specialty_korean_deep", "name": "배치동 단과국어 (심화)", "axis": "learn", "slot": "A",
+      "stage_min": "middle", "institution": "specialty", "method": "deep",
+      "subjects": ["korean"], "cost": 110, "tag": "academy",
+      "desc": "오단어 선생의 심화 국어. 지문을 깊게 파고들어요."
+    },
+    {
+      "id": "specialty_science_drill", "name": "배치동 단과과학 (양치기)", "axis": "learn", "slot": "A",
+      "stage_min": "middle", "institution": "specialty", "method": "drill",
+      "subjects": ["science"], "cost": 110, "tag": "academy",
+      "desc": "백실험 선생의 과학 문제풀이. 유형을 몸에 새겨요."
+    },
+    {
+      "id": "specialty_social_concept", "name": "배치동 단과탐구 (개념)", "axis": "learn", "slot": "A",
+      "stage_min": "middle", "institution": "specialty", "method": "concept",
+      "subjects": ["social"], "cost": 100, "tag": "academy",
+      "desc": "한설득 선생의 탐구 개념 강의. 흐름으로 이해시켜요."
+    },
+    {
+      "id": "tutor_deep", "name": "개인과외 (심화)", "axis": "learn", "slot": "A",
+      "stage_min": "middle", "institution": "tutor", "method": "deep",
+      "subjects": ["math", "science"], "cost": 160, "tag": "tutor",
+      "desc": "일대일 맞춤 과외. 우리 아이 약점만 콕 집어 깊게."
+    },
+    {
+      "id": "final_intensive", "name": "파이널 특강 (스파르타)", "axis": "learn", "slot": "A",
+      "stage_min": "high", "institution": "specialty", "method": "spartan",
+      "subjects": ["korean", "english", "math", "science", "social"], "cost": 200, "tag": "academy",
+      "desc": "수능 직전 전 과목 스파르타 특강. 마지막 스퍼트, 대신 번아웃 주의."
+    },
+    {
+      "id": "self_study_high", "name": "독서실 벼락치기", "axis": "learn", "slot": "A",
+      "stage_min": "high", "institution": "study", "method": "self",
+      "subjects": ["korean", "english", "math"], "cost": 30, "tag": "self",
+      "desc": "혼자 밤늦게까지 파는 자습. 저비용 자기주도로 버텨요."
+    },
+
+    {
+      "id": "playground", "name": "동네 놀이터", "axis": "leisure", "slot": "B",
+      "stage_min": "infant", "cost": 0, "tag": "nature",
+      "emotion": 5, "stamina": 6, "talent": 1, "bonding": 2, "stress": -6,
+      "desc": "친구들과 뛰노는 놀이터. 몸도 마음도 튼튼해져요."
+    },
+    {
+      "id": "nature_play", "name": "시골 자연놀이", "axis": "leisure", "slot": "B",
+      "stage_min": "infant", "cost": 30, "tag": "nature",
+      "emotion": 7, "stamina": 5, "talent": 3, "bonding": 3, "stress": -8, "reveal_talent": true,
+      "desc": "논밭과 계곡에서 마음껏 뛰놀아요. 뜻밖의 재능이 반짝일지도."
+    },
+    {
+      "id": "family_outing", "name": "가족 나들이", "axis": "leisure", "slot": "B",
+      "stage_min": "infant", "cost": 60, "tag": "family",
+      "emotion": 6, "stamina": 3, "talent": 1, "bonding": 7, "stress": -7,
+      "desc": "온 가족이 함께하는 하루. 유대감이 차곡차곡 쌓여요."
+    },
+    {
+      "id": "rest_home", "name": "집에서 푹 쉬기", "axis": "leisure", "slot": "B",
+      "stage_min": "infant", "cost": 0, "tag": "rest",
+      "emotion": 5, "stamina": 6, "talent": 0, "bonding": 2, "stress": -14,
+      "desc": "아무것도 하지 않는 하루. 지친 마음을 크게 회복해요."
+    },
+    {
+      "id": "art_music", "name": "미술·음악 교실", "axis": "leisure", "slot": "B",
+      "stage_min": "elementary", "cost": 70, "tag": "art",
+      "emotion": 4, "stamina": 1, "talent": 8, "bonding": 2, "stress": -3, "reveal_talent": true,
+      "desc": "붓을 들고 건반을 눌러요. 창의의 결이 드러나는 시간."
+    },
+    {
+      "id": "sport_class", "name": "운동 (태권도·수영)", "axis": "leisure", "slot": "B",
+      "stage_min": "elementary", "cost": 60, "tag": "sport",
+      "emotion": 3, "stamina": 9, "talent": 5, "bonding": 2, "stress": -4, "reveal_talent": true,
+      "desc": "땀 흘리며 몸을 단련해요. 체력과 신체 감각이 자라요."
+    },
+    {
+      "id": "library_read", "name": "도서관 책읽기", "axis": "leisure", "slot": "B",
+      "stage_min": "elementary", "cost": 0, "tag": "rest",
+      "emotion": 4, "stamina": 1, "talent": 2, "bonding": 1, "stress": -5,
+      "desc": "조용한 도서관에서 좋아하는 책을. 마음이 차분해져요."
+    },
+    {
+      "id": "family_talk", "name": "진솔한 가족 대화", "axis": "leisure", "slot": "B",
+      "stage_min": "elementary", "cost": 0, "tag": "family",
+      "emotion": 5, "stamina": 0, "talent": 0, "bonding": 8, "stress": -6,
+      "desc": "오늘 하루 어땠는지 마주 앉아 이야기해요. 신뢰가 깊어져요."
+    },
+    {
+      "id": "vacation_trip", "name": "방학 여행", "axis": "leisure", "slot": "B",
+      "stage_min": "elementary", "cost": 150, "tag": "family",
+      "emotion": 9, "stamina": 5, "talent": 2, "bonding": 9, "stress": -10,
+      "desc": "온 가족이 떠나는 방학 여행. 큰 비용만큼 큰 추억."
+    },
+    {
+      "id": "part_time_job", "name": "아르바이트", "axis": "leisure", "slot": "B",
+      "stage_min": "high", "cost": 0, "tag": "work",
+      "emotion": -2, "stamina": -4, "talent": 2, "bonding": -1, "stress": 8, "money": 130,
+      "desc": "카페에서 시급을 벌어요. 가계에 보태지만 아이가 지쳐요."
+    }
+  ]
+}

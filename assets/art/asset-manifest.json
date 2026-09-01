@@ -1,0 +1,802 @@
+{
+ "style": "style/style-guide.md",
+ "anchor": {
+  "path": "style/anchor.jpg",
+  "prompt": "a cheerful Korean elementary school child mascot character, gender-neutral, neat mushroom bowl haircut in warm dark brown with a soft highlight, coral short-sleeve t-shirt, cream shorts, white sneakers, standing front-facing in a friendly idle pose, chubby storybook proportions 3 heads tall, completely blank empty face with only two soft pink blush cheek circles (no facial features at all, the game engine draws the face)"
+ },
+ "model": "gemini-3-pro-image",
+ "out_dir": ".",
+ "assets": [
+  {
+   "name": "char_elementary_mushroom",
+   "prompt": "a cheerful Korean elementary school child, chubby storybook proportions 3 heads tall, wearing a coral short-sleeve t-shirt, sage green shorts and white sneakers, neat round mushroom bowl haircut in warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024
+  },
+  {
+   "name": "char_infant_mushroom",
+   "prompt": "the exact same child character from the reference at a different age: a very round chubby Korean toddler child, 2.5 heads tall baby proportions, big round head, wearing a coral t-shirt and cream shorts, tiny bare feet with soft shoes, same neat round mushroom bowl haircut in warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_mushroom.png"
+   ]
+  },
+  {
+   "name": "char_middle_mushroom",
+   "prompt": "the exact same child character from the reference at a different age: a Korean middle school preteen, slightly taller 3.5 heads tall, wearing a simple school uniform: white shirt with a soft blue vest and gray shorts, same neat round mushroom bowl haircut in warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_mushroom.png"
+   ]
+  },
+  {
+   "name": "char_high_mushroom",
+   "prompt": "the exact same child character from the reference at a different age: a Korean high school teenager, 4 heads tall with slightly elongated proportions, wearing a school uniform: white shirt with a soft blue cardigan and gray pants, same neat round mushroom bowl haircut in warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_mushroom.png"
+   ]
+  },
+  {
+   "name": "char_elementary_short",
+   "prompt": "a cheerful Korean elementary school child, chubby storybook proportions 3 heads tall, wearing a coral short-sleeve t-shirt, sage green shorts and white sneakers, very short cropped boyish haircut with the forehead and both ears clearly visible, small side part, warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024
+  },
+  {
+   "name": "char_infant_short",
+   "prompt": "the exact same child character from the reference at a different age: a very round chubby Korean toddler child, 2.5 heads tall baby proportions, big round head, wearing a coral t-shirt and cream shorts, tiny bare feet with soft shoes, same very short cropped boyish haircut with the forehead and both ears clearly visible, small side part, warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_short.png"
+   ]
+  },
+  {
+   "name": "char_middle_short",
+   "prompt": "the exact same child character from the reference at a different age: a Korean middle school preteen, slightly taller 3.5 heads tall, wearing a simple school uniform: white shirt with a soft blue vest and gray shorts, same very short cropped boyish haircut with the forehead and both ears clearly visible, small side part, warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_short.png"
+   ]
+  },
+  {
+   "name": "char_high_short",
+   "prompt": "the exact same child character from the reference at a different age: a Korean high school teenager, 4 heads tall with slightly elongated proportions, wearing a school uniform: white shirt with a soft blue cardigan and gray pants, same very short cropped boyish haircut with the forehead and both ears clearly visible, small side part, warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_short.png"
+   ]
+  },
+  {
+   "name": "char_elementary_twin",
+   "prompt": "a cheerful Korean elementary school child, chubby storybook proportions 3 heads tall, wearing a coral short-sleeve t-shirt, sage green shorts and white sneakers, twin pigtails hairstyle with straight bangs in warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024
+  },
+  {
+   "name": "char_infant_twin",
+   "prompt": "the exact same child character from the reference at a different age: a very round chubby Korean toddler child, 2.5 heads tall baby proportions, big round head, wearing a coral t-shirt and cream shorts, tiny bare feet with soft shoes, same twin pigtails hairstyle with straight bangs in warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_twin.png"
+   ]
+  },
+  {
+   "name": "char_middle_twin",
+   "prompt": "the exact same child character from the reference at a different age: a Korean middle school preteen, slightly taller 3.5 heads tall, wearing a simple school uniform: white shirt with a soft blue vest and gray shorts, same twin pigtails hairstyle with straight bangs in warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_twin.png"
+   ]
+  },
+  {
+   "name": "char_high_twin",
+   "prompt": "the exact same child character from the reference at a different age: a Korean high school teenager, 4 heads tall with slightly elongated proportions, wearing a school uniform: white shirt with a soft blue cardigan and gray pants, same twin pigtails hairstyle with straight bangs in warm dark brown, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_twin.png"
+   ]
+  },
+  {
+   "name": "icon_coin",
+   "prompt": "a single gold coin with a small star emblem",
+   "size": 256
+  },
+  {
+   "name": "icon_gem",
+   "prompt": "a cute teal diamond gem",
+   "size": 256
+  },
+  {
+   "name": "icon_book",
+   "prompt": "a closed warm-red picture book with a bookmark ribbon",
+   "size": 256
+  },
+  {
+   "name": "icon_bag",
+   "prompt": "a cozy cream shopping bag with a coral heart",
+   "size": 256
+  },
+  {
+   "name": "icon_gear",
+   "prompt": "a rounded settings gear",
+   "size": 256
+  },
+  {
+   "name": "icon_film",
+   "prompt": "a small movie clapperboard with a completely blank white slate, no letters, no numbers, no writing of any kind on it",
+   "size": 256
+  },
+  {
+   "name": "icon_ribbon",
+   "prompt": "a gift ribbon bow, coral colored",
+   "size": 256
+  },
+  {
+   "name": "icon_sparkle",
+   "prompt": "a four-pointed golden sparkle star",
+   "size": 256
+  },
+  {
+   "name": "icon_warning",
+   "prompt": "a rounded amber warning triangle with an exclamation mark",
+   "size": 256
+  },
+  {
+   "name": "icon_play",
+   "prompt": "a play button triangle inside a soft blue circle",
+   "size": 256
+  },
+  {
+   "name": "icon_heart",
+   "prompt": "a warm pink heart",
+   "size": 256
+  },
+  {
+   "name": "icon_dice",
+   "prompt": "a single white game die showing round pips",
+   "size": 256
+  },
+  {
+   "name": "icon_check",
+   "prompt": "a bold green check mark in a circle",
+   "size": 256
+  },
+  {
+   "name": "icon_noads",
+   "prompt": "a crossed-out amber megaphone",
+   "size": 256
+  },
+  {
+   "name": "icon_pack",
+   "prompt": "a cute gift box with ribbon and a small teal gem on top",
+   "size": 256
+  },
+  {
+   "name": "icon_pass",
+   "prompt": "a golden ticket stub with a star emblem, no text",
+   "size": 256
+  },
+  {
+   "name": "act_home_reading",
+   "prompt": "an open picture book with a tiny star above it",
+   "size": 256
+  },
+  {
+   "name": "act_home_number",
+   "prompt": "colorful wooden number blocks stacked playfully",
+   "size": 256
+  },
+  {
+   "name": "act_afterschool_class",
+   "prompt": "a small wooden school desk with a green chalkboard behind it",
+   "size": 256
+  },
+  {
+   "name": "act_online_lecture",
+   "prompt": "a laptop with headphones resting on it",
+   "size": 256
+  },
+  {
+   "name": "act_study_room",
+   "prompt": "a small desk lamp shining on a stack of books",
+   "size": 256
+  },
+  {
+   "name": "act_specialty_math_spartan",
+   "prompt": "a stack of math workbooks with a red pencil and ruler",
+   "size": 256
+  },
+  {
+   "name": "act_specialty_eng_preemptive",
+   "prompt": "a blue workbook with round headphones on top",
+   "size": 256
+  },
+  {
+   "name": "act_academy_drill",
+   "prompt": "a tall stack of workbooks with a ringing alarm clock",
+   "size": 256
+  },
+  {
+   "name": "act_specialty_korean_deep",
+   "prompt": "an open thick book with a warm red bookmark ribbon",
+   "size": 256
+  },
+  {
+   "name": "act_specialty_science_drill",
+   "prompt": "a bubbling round science flask with sage green liquid",
+   "size": 256
+  },
+  {
+   "name": "act_specialty_social_concept",
+   "prompt": "a small cute globe on a stand",
+   "size": 256
+  },
+  {
+   "name": "act_tutor_deep",
+   "prompt": "a notebook with a golden pencil and a small pointer stick",
+   "size": 256
+  },
+  {
+   "name": "act_final_intensive",
+   "prompt": "a lit warm candle on a stack of thick books",
+   "size": 256
+  },
+  {
+   "name": "act_self_study_high",
+   "prompt": "a thermos bottle beside a thick open workbook",
+   "size": 256
+  },
+  {
+   "name": "act_playground",
+   "prompt": "a small playground slide with a spring rider",
+   "size": 256
+  },
+  {
+   "name": "act_nature_play",
+   "prompt": "a leafy green tree with a tire swing",
+   "size": 256
+  },
+  {
+   "name": "act_family_outing",
+   "prompt": "a picnic basket on a folded checkered blanket",
+   "size": 256
+  },
+  {
+   "name": "act_rest_home",
+   "prompt": "a fluffy cream pillow with a soft blanket",
+   "size": 256
+  },
+  {
+   "name": "act_art_music",
+   "prompt": "a paint palette with brush and a small tambourine",
+   "size": 256
+  },
+  {
+   "name": "act_sport_class",
+   "prompt": "a folded white taekwondo uniform with an orange belt",
+   "size": 256
+  },
+  {
+   "name": "act_library_read",
+   "prompt": "a neat stack of library books with round glasses on top",
+   "size": 256
+  },
+  {
+   "name": "act_vacation_trip",
+   "prompt": "a small yellow suitcase with blank travel stickers",
+   "size": 256
+  },
+  {
+   "name": "act_part_time_job",
+   "prompt": "a green apron with a blank name tag",
+   "size": 256
+  },
+  {
+   "name": "bg_home_spring",
+   "prompt": "a warm cozy Korean apartment living room interior, morning sunlight, a big window with cherry blossom branches outside, small coral sofa, potted plant, wooden floor, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "3:4",
+   "final_canvas": {
+    "width": 1080,
+    "height": 1440
+   }
+  },
+  {
+   "name": "bg_home_summer",
+   "prompt": "the exact same Korean apartment living room from the reference in a different season: bright summer light, open window with lush green leaves outside, a small electric fan and a cool bamboo mat, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "3:4",
+   "final_canvas": {
+    "width": 1080,
+    "height": 1440
+   },
+   "refs": [
+    "raw/bg_home_spring.png"
+   ]
+  },
+  {
+   "name": "bg_home_autumn",
+   "prompt": "the exact same Korean apartment living room from the reference in a different season: golden afternoon light, window with orange ginkgo leaves outside, a knit blanket folded on the sofa, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "3:4",
+   "final_canvas": {
+    "width": 1080,
+    "height": 1440
+   },
+   "refs": [
+    "raw/bg_home_spring.png"
+   ]
+  },
+  {
+   "name": "bg_home_winter",
+   "prompt": "the exact same Korean apartment living room from the reference in a different season: soft warm light, window with gentle snow outside, a small heater and a steaming cocoa mug on the low table, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "3:4",
+   "final_canvas": {
+    "width": 1080,
+    "height": 1440
+   },
+   "refs": [
+    "raw/bg_home_spring.png"
+   ]
+  },
+  {
+   "name": "bg_act_home",
+   "prompt": "a cozy Korean apartment study corner with a low wooden table, floor cushion and a small bookshelf, warm daylight, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_public",
+   "prompt": "a bright after-school classroom with a green chalkboard and wooden desks, cheerful daylight, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_online",
+   "prompt": "a desk by a window at dusk with a laptop glowing softly and headphones beside it, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_self",
+   "prompt": "a quiet study-room cubicle with a warm desk lamp and neatly stacked books, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_academy",
+   "prompt": "a Korean hagwon classroom at night, rows of desks facing a big whiteboard, city lights outside the window, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_tutor",
+   "prompt": "a warm living-room study table with two chairs and an open workbook, soft lamp light, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_nature",
+   "prompt": "a sunny countryside meadow with one big leafy tree, soft rolling hills and small flowers, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_family",
+   "prompt": "a warm park picnic spot at golden hour with a checkered blanket and a basket under a tree, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_rest",
+   "prompt": "a cozy bedroom with a fluffy bed, round rug and soft afternoon light through curtains, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_art",
+   "prompt": "a bright art classroom with an easel, paint pots and a small upright piano, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_sport",
+   "prompt": "a friendly indoor gym hall with soft mats, a low vault box and big windows, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_act_work",
+   "prompt": "a cozy small corner shop counter with a green apron hanging on a hook and neat shelves, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_transition_talk",
+   "prompt": "a warm Korean living room at evening, low wooden table with two tea cups, soft lamp light, the back silhouettes of two parents sitting in the near foreground facing an empty seat cushion, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "16:9",
+   "final_canvas": {
+    "width": 1920,
+    "height": 1080
+   }
+  },
+  {
+   "name": "cg_caught_scandal",
+   "prompt": "a warm storybook ending scene: the teenager sitting on a bench at dusk under a warm streetlamp, head bowed but calm, a parent's hand resting gently on their shoulder from outside the frame, muted warm colors with hopeful soft light on the horizon, the teenager has the mushroom haircut and a gentle simple face with small dot eyes and a soft smile, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "16:9",
+   "final_canvas": {
+    "width": 1920,
+    "height": 1080
+   },
+   "refs": [
+    "raw/char_high_mushroom.png"
+   ]
+  },
+  {
+   "name": "cg_hanul_happy",
+   "prompt": "a warm storybook ending scene: the teenager joyfully jumping with both arms raised in front of a grand university stone gate archway, flower petals and confetti in the air, bright spring morning, the teenager has the mushroom haircut and a gentle simple face with small dot eyes and a soft smile, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "16:9",
+   "final_canvas": {
+    "width": 1920,
+    "height": 1080
+   },
+   "refs": [
+    "raw/char_high_mushroom.png"
+   ]
+  },
+  {
+   "name": "cg_hanul_burnout",
+   "prompt": "a warm storybook ending scene: the teenager sitting relieved but tired on a suitcase in front of a university stone gate at sunset, holding a warm drink, gentle small smile, soft amber light, the teenager has the mushroom haircut and a gentle simple face with small dot eyes and a soft smile, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "16:9",
+   "final_canvas": {
+    "width": 1920,
+    "height": 1080
+   },
+   "refs": [
+    "raw/char_high_mushroom.png"
+   ]
+  },
+  {
+   "name": "cg_art_star",
+   "prompt": "a warm storybook ending scene: the teenager on a small stage in a warm spotlight painting on a big canvas while musical notes float around, soft audience silhouettes below the stage, the teenager has the mushroom haircut and a gentle simple face with small dot eyes and a soft smile, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "16:9",
+   "final_canvas": {
+    "width": 1920,
+    "height": 1080
+   },
+   "refs": [
+    "raw/char_high_mushroom.png"
+   ]
+  },
+  {
+   "name": "cg_startup",
+   "prompt": "a warm storybook ending scene: the teenager proudly standing in a tiny cozy startup office corner with a laptop, a potted plant and a little toy rocket on the desk, fresh morning light, the teenager has the mushroom haircut and a gentle simple face with small dot eyes and a soft smile, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "16:9",
+   "final_canvas": {
+    "width": 1920,
+    "height": 1080
+   },
+   "refs": [
+    "raw/char_high_mushroom.png"
+   ]
+  },
+  {
+   "name": "cg_happy_ordinary",
+   "prompt": "a warm storybook ending scene: the teenager walking home on a neighborhood street at golden hour with two parent silhouettes seen from behind beside them, cherry blossom petals drifting, warm long shadows, the teenager has the mushroom haircut and a gentle simple face with small dot eyes and a soft smile, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "16:9",
+   "final_canvas": {
+    "width": 1920,
+    "height": 1080
+   },
+   "refs": [
+    "raw/char_high_mushroom.png"
+   ]
+  },
+  {
+   "name": "bg_ending_common",
+   "prompt": "a warm sunrise sky over a quiet Korean neighborhood skyline with rooftops and power lines, soft clouds, hopeful gentle mood, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "16:9",
+   "final_canvas": {
+    "width": 1920,
+    "height": 1080
+   }
+  },
+  {
+   "name": "deco_empty_nest",
+   "prompt": "a small cozy round bird nest with a tiny heart-patterned egg inside",
+   "size": 512
+  },
+  {
+   "name": "app_icon",
+   "prompt": "a mobile app icon: the happy round face of the Korean child character with mushroom haircut, big warm closed-eye smile and rosy cheeks, centered on a solid coral background filling the whole square, bold and readable at small size, full-bleed, no text",
+   "transparent": false,
+   "size": 1024
+  },
+  {
+   "name": "splash",
+   "prompt": "the Korean toddler character with mushroom haircut sitting happily reading an open picture book, gentle happy face with small dot eyes and a soft smile, simple centered composition",
+   "size": 1024,
+   "refs": [
+    "raw/char_infant_mushroom.png"
+   ]
+  },
+  {
+   "name": "char_elementary_cos_spring",
+   "prompt": "the exact same child character from the reference, a cheerful Korean elementary school child, chubby storybook proportions 3 heads tall, now wearing a spring picnic outfit: sage green overalls over a cream shirt with a tiny daisy pin, and a soft straw sun hat, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_mushroom.png"
+   ]
+  },
+  {
+   "name": "char_infant_cos_spring",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a very round chubby Korean toddler child, 2.5 heads tall baby proportions, big round head, wearing a spring picnic outfit: sage green overalls over a cream shirt with a tiny daisy pin, and a soft straw sun hat, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_spring.png"
+   ]
+  },
+  {
+   "name": "char_middle_cos_spring",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a Korean middle school preteen, slightly taller 3.5 heads tall, wearing a spring picnic outfit: sage green overalls over a cream shirt with a tiny daisy pin, and a soft straw sun hat, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_spring.png"
+   ]
+  },
+  {
+   "name": "char_high_cos_spring",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a Korean high school teenager, 4 heads tall with slightly elongated proportions, wearing a spring picnic outfit: sage green overalls over a cream shirt with a tiny daisy pin, and a soft straw sun hat, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_spring.png"
+   ]
+  },
+  {
+   "name": "char_elementary_cos_uniform",
+   "prompt": "the exact same child character from the reference, a cheerful Korean elementary school child, chubby storybook proportions 3 heads tall, now wearing a crisp brand-new school uniform: navy blazer with round gold buttons over a white shirt, plain gray shorts, neat combed hairstyle, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_mushroom.png"
+   ]
+  },
+  {
+   "name": "char_infant_cos_uniform",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a very round chubby Korean toddler child, 2.5 heads tall baby proportions, big round head, wearing a crisp brand-new school uniform: navy blazer with round gold buttons over a white shirt, plain gray shorts, neat combed hairstyle, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_uniform.png"
+   ]
+  },
+  {
+   "name": "char_middle_cos_uniform",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a Korean middle school preteen, slightly taller 3.5 heads tall, wearing a crisp brand-new school uniform: navy blazer with round gold buttons over a white shirt, plain gray shorts, neat combed hairstyle, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_uniform.png"
+   ]
+  },
+  {
+   "name": "char_high_cos_uniform",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a Korean high school teenager, 4 heads tall with slightly elongated proportions, wearing a crisp brand-new school uniform: navy blazer with round gold buttons over a white shirt, plain gray shorts, neat combed hairstyle, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_uniform.png"
+   ]
+  },
+  {
+   "name": "char_elementary_cos_hanbok",
+   "prompt": "the exact same child character from the reference, a cheerful Korean elementary school child, chubby storybook proportions 3 heads tall, now wearing a colorful Korean hanbok: warm pink jeogori jacket with soft blue sleeves, cream baji pants, and a cute traditional topknot-braided hairstyle, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_mushroom.png"
+   ]
+  },
+  {
+   "name": "char_infant_cos_hanbok",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a very round chubby Korean toddler child, 2.5 heads tall baby proportions, big round head, wearing a colorful Korean hanbok: warm pink jeogori jacket with soft blue sleeves, cream baji pants, and a cute traditional topknot-braided hairstyle, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_hanbok.png"
+   ]
+  },
+  {
+   "name": "char_middle_cos_hanbok",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a Korean middle school preteen, slightly taller 3.5 heads tall, wearing a colorful Korean hanbok: warm pink jeogori jacket with soft blue sleeves, cream baji pants, and a cute traditional topknot-braided hairstyle, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_hanbok.png"
+   ]
+  },
+  {
+   "name": "char_high_cos_hanbok",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a Korean high school teenager, 4 heads tall with slightly elongated proportions, wearing a colorful Korean hanbok: warm pink jeogori jacket with soft blue sleeves, cream baji pants, and a cute traditional topknot-braided hairstyle, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_hanbok.png"
+   ]
+  },
+  {
+   "name": "char_elementary_cos_astro",
+   "prompt": "the exact same child character from the reference, a cheerful Korean elementary school child, chubby storybook proportions 3 heads tall, now wearing a cute white astronaut suit with soft blue accents, a clear round helmet tilted back over the head, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_mushroom.png"
+   ]
+  },
+  {
+   "name": "char_infant_cos_astro",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a very round chubby Korean toddler child, 2.5 heads tall baby proportions, big round head, wearing a cute white astronaut suit with soft blue accents, a clear round helmet tilted back over the head, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_astro.png"
+   ]
+  },
+  {
+   "name": "char_middle_cos_astro",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a Korean middle school preteen, slightly taller 3.5 heads tall, wearing a cute white astronaut suit with soft blue accents, a clear round helmet tilted back over the head, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_astro.png"
+   ]
+  },
+  {
+   "name": "char_high_cos_astro",
+   "prompt": "the exact same child character and the exact same outfit from the reference at a different age: a Korean high school teenager, 4 heads tall with slightly elongated proportions, wearing a cute white astronaut suit with soft blue accents, a clear round helmet tilted back over the head, standing front-facing in a relaxed idle pose, full body, arms naturally at the sides, face intentionally blank - no eyes, no mouth, no eyebrows, only soft pink blush circles on the cheeks",
+   "size": 1024,
+   "refs": [
+    "raw/char_elementary_cos_astro.png"
+   ]
+  },
+  {
+   "name": "pet_forest_fairy",
+   "prompt": "a tiny cute forest fairy spirit creature: round sage-green fluffy body, small glowing cream wings, a little leaf sprout on its head, simple happy dot eyes",
+   "size": 512
+  },
+  {
+   "name": "acc_ribbon",
+   "prompt": "a small pink hair ribbon bow pin",
+   "size": 512
+  },
+  {
+   "name": "acc_glasses",
+   "prompt": "a pair of round brown-rimmed glasses",
+   "size": 512
+  },
+  {
+   "name": "acc_umbrella",
+   "prompt": "a small bright yellow umbrella, open",
+   "size": 512
+  },
+  {
+   "name": "acc_puppy",
+   "prompt": "a cute cream-colored plush puppy doll toy sitting",
+   "size": 512
+  },
+  {
+   "name": "acc_strawhat",
+   "prompt": "a straw sun hat with a coral ribbon band",
+   "size": 512
+  },
+  {
+   "name": "acc_muffler",
+   "prompt": "a fluffy warm-pink knit muffler scarf loosely coiled",
+   "size": 512
+  },
+  {
+   "name": "bg_theme_starrynight",
+   "prompt": "a dreamy starry night sky in soft LIGHT pastel tones: pale lavender-blue sky, tiny twinkling stars, a small crescent moon and gentle clouds, very light and airy so dark text stays readable on top, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "3:4",
+   "final_canvas": {
+    "width": 1080,
+    "height": 1440
+   }
+  },
+  {
+   "name": "bg_theme_attic",
+   "prompt": "a cozy dreamy attic room above soft clouds with a round window, warm cream and peach pastel tones, tiny potted plants and fairy lights, very light and airy, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "3:4",
+   "final_canvas": {
+    "width": 1080,
+    "height": 1440
+   }
+  },
+  {
+   "name": "bg_event_daily",
+   "prompt": "a quiet Korean neighborhood alley in front of an elementary school gate on a mild afternoon, low brick walls, a small tree and a bench, soft daylight, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_event_burnout",
+   "prompt": "a small study room at late night seen from the doorway, desk lamp glowing over an open workbook, dark blue window, a folded blanket on the chair, quiet and tired but still warm, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_event_temptation",
+   "prompt": "a Korean hagwon street at night seen from a quiet side alley, distant warm shop lights and a vending machine glow, empty sidewalk, slightly moody but never scary, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  },
+  {
+   "name": "bg_event_rebellion",
+   "prompt": "a home hallway at evening facing a closed bedroom door with a small handmade door sign shape (blank, no letters), warm wall lamp, a pair of sneakers on the floor, no people, no readable text or signage",
+   "transparent": false,
+   "aspect_ratio": "4:3",
+   "final_canvas": {
+    "width": 1440,
+    "height": 1080
+   }
+  }
+ ]
+}

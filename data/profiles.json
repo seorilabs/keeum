@@ -1,0 +1,20 @@
+{
+  "_note": "아이 생성 풀. 성별은 이름·외형 프리셋 전용이며 스탯/로직에 영향 없음(DEC-013).",
+  "names": {
+    "son": ["도윤", "서준", "하준", "지호", "은우", "예준", "시우", "주원"],
+    "daughter": ["서아", "하윤", "지우", "수아", "지아", "다인", "예린", "유나"],
+    "neutral": ["하람", "이든", "가온", "루아", "온유", "새롬", "한별", "노을"]
+  },
+  "first_impressions": [
+    {"id": "bright", "label": "잘 웃는 아이", "desc": "눈만 마주쳐도 방긋 웃어요.", "emotion": 6, "bonding": 4},
+    {"id": "curious", "label": "호기심 많은 아이", "desc": "\"이건 뭐야?\"가 입에 붙었어요.", "talent": 4, "emotion": 3},
+    {"id": "calm", "label": "차분한 아이", "desc": "혼자서도 오래 잘 놀아요.", "mental": 6, "stress": -3},
+    {"id": "energetic", "label": "에너지 넘치는 아이", "desc": "한시도 가만있질 않아요.", "stamina": 8, "constitution": 5}
+  ],
+  "temperaments": ["diligent", "distracted", "competitive", "sensitive", "immersive", "relaxed"],
+  "hair_presets": {
+    "son": ["short_black", "short_brown", "curly"],
+    "daughter": ["twin_tail", "long_wave", "bob"],
+    "neutral": ["mushroom", "short_soft", "wavy_short"]
+  }
+}

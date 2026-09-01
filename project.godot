@@ -1,0 +1,49 @@
+; Engine configuration file.
+; 내 새끼 대학 보내기 (keeum) — Godot 4.7 project
+; 세로 고정 육성 시뮬레이션. core 도메인은 game/adapter 밖에서 엔진 독립.
+
+config_version=5
+
+[application]
+
+config/name="내 새끼 대학 보내기"
+config/description="학부모가 되어 자녀를 유아기부터 고3까지 키우는 한국 교육열 풍자 힐링 육성 시뮬레이션."
+run/main_scene="res://game/ui/main.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://assets/art/app_icon.png"
+; 안드로이드 백버튼을 엔진이 즉시 종료 처리하지 않고 main._notification 라우팅에 맡긴다.
+config/quit_on_go_back=false
+boot_splash/bg_color=Color(0.984314, 0.952941, 0.905882, 1)
+boot_splash/show_image=true
+boot_splash/image="res://assets/art/splash.png"
+
+[autoload]
+
+GameController="*res://game/autoload/game_controller.gd"
+AudioBus="*res://game/autoload/audio_bus.gd"
+Settings="*res://game/autoload/settings.gd"
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=1920
+window/size/window_width_override=432
+window/size/window_height_override=768
+window/handheld/orientation=1
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep_width"
+
+[dotnet]
+
+project/assembly_name="keeum"
+
+[gui]
+
+theme/default_font_antialiasing=2
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.984314, 0.952941, 0.905882, 1)
