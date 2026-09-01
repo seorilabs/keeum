@@ -11,6 +11,7 @@ var _a_cards: Dictionary = {}
 var _b_cards: Dictionary = {}
 var _bonus_cards: Dictionary = {}
 var _bonus_container: VBoxContainer
+var _confirm_btn: Button
 var _run: GameRun
 
 func enter(_data: Variant = null) -> void:
@@ -48,9 +49,9 @@ func enter(_data: Variant = null) -> void:
 	repeat.pressed.connect(_repeat_last)
 	root.add_child(repeat)
 
-	var confirm := UIKit.button("결정!", true)
-	confirm.pressed.connect(_confirm)
-	root.add_child(confirm)
+	_confirm_btn = UIKit.button("결정!", true)
+	_confirm_btn.pressed.connect(_confirm)
+	root.add_child(_confirm_btn)
 
 	_refresh()
 	FX.stagger_children(body, 0.03)
@@ -176,7 +177,9 @@ func _open_bonus() -> void:
 			if _bonus_cards.has(id):
 				continue
 			var cost := int(act.get("cost", 0))
-			var card := _option_card(str(act.get("name", id)), _hint(act), cost, _run.household.can_afford(cost))
+			var affordable := _run.household.can_afford(cost)
+			var card := _option_card(str(act.get("name", id)), _hint(act), cost, affordable)
+			card.disabled = not affordable
 			card.pressed.connect(_on_pick_bonus.bind(id))
 			_bonus_container.add_child(card)
 			_bonus_cards[id] = card
@@ -194,6 +197,17 @@ func _refresh() -> void:
 	_refresh_store(_b_cards, _b)
 	if _bonus_open:
 		_refresh_store(_bonus_cards, _bonus)
+	# 카드 하나하나는 살 수 있어도 A+B+보너스 합산이 재력을 넘는 조합은 확정을 막는다(#8).
+	if _confirm_btn != null:
+		_confirm_btn.disabled = not _run.household.can_afford(_selected_total_cost())
+
+func _selection_cost(id: String) -> int:
+	if id == "":
+		return 0
+	return int(_run.content.activity(id).get("cost", 0))
+
+func _selected_total_cost() -> int:
+	return _selection_cost(_a) + _selection_cost(_b) + _selection_cost(_bonus)
 
 func _refresh_store(store: Dictionary, selected: String) -> void:
 	for id: String in store:
@@ -213,6 +227,10 @@ func _refresh_store(store: Dictionary, selected: String) -> void:
 				FX.pop_in(check)
 
 func _confirm() -> void:
+	# 버튼 비활성화를 우회한 호출(연타·프로그램 호출)도 같은 판정으로 막는다.
+	if not _run.household.can_afford(_selected_total_cost()):
+		router.toast("재력이 부족해요 — 활동 조합을 줄여 주세요")
+		return
 	var result := _run.resolve_turn(_a, _b, _bonus)
 	GameController.last_selection = {"a": _a, "b": _b, "bonus": _bonus}
 	GameController.save_game()  # 턴 종료 자동 저장(AC-006)

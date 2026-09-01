@@ -107,6 +107,9 @@ func run_smoke() -> void:
 	for c: Array in pre:
 		await _visit(str(c[0]), c[1])
 
+	if not await _check_combined_cost_gate():
+		return
+
 	var result := run.resolve_turn(a, b)
 	var cases := [
 		["result", result], ["term", null], ["event", run.content.events[1]],
@@ -143,6 +146,39 @@ func run_smoke() -> void:
 
 	print("=== UI 스모크 완료 ===")
 	main.get_tree().quit(0)
+
+## #8 회귀: 카드 각각은 구매 가능해도 A+B(+보너스) 합산 비용이 재력을 넘으면
+## 결정 버튼이 비활성화되고, 지불 가능한 조합으로 돌아오면 다시 열려야 한다.
+func _check_combined_cost_gate() -> bool:
+	main.goto("activity")
+	await _settle(0.4)
+	var s: UIScreen = main.current_screen()
+	if not (s is ActivityScreen):
+		push_error("UIHarness: activity 화면 진입 실패")
+		main.get_tree().quit(1)
+		return false
+	var run: GameRun = GameController.run
+	var money_before: int = run.household.money
+	run.household.money = 130
+	s.set("_a", "specialty_math_spartan")  # 비용 120 — 단독으로는 구매 가능
+	s.set("_b", "family_outing")           # 비용 60 — 단독 가능, 합산 180 > 130
+	s.call("_refresh")
+	var confirm: Button = s.get("_confirm_btn")
+	if confirm == null or not confirm.disabled:
+		push_error("UIHarness: 합산 초과 조합인데 결정 버튼이 막히지 않았습니다 (#8)")
+		main.get_tree().quit(1)
+		return false
+	s.set("_a", "")  # 합산 60 ≤ 130 → 다시 확정 가능해야 한다
+	s.call("_refresh")
+	if confirm.disabled:
+		push_error("UIHarness: 지불 가능한 조합인데 결정 버튼이 막혀 있습니다 (#8)")
+		main.get_tree().quit(1)
+		return false
+	s.set("_b", "")
+	s.call("_refresh")
+	run.household.money = money_before
+	print("  ✓ 합산 비용 확정 차단 (#8)")
+	return true
 
 func _fake_result(act: Dictionary) -> Dictionary:
 	return {
