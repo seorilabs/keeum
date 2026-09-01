@@ -16,6 +16,6 @@ concurrency:
 
 jobs:
   review:
-    uses: seorilabs/.github/.github/workflows/minimax-review-v1.yml@b56a69797d3e47aaec93fc9f045eec4c327e93d1
+    uses: seorilabs/.github/.github/workflows/minimax-review-v1.yml@60cb62ae24fe8fcdc2128b0fc5ec2a1b9d56df48
     secrets:
       MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
