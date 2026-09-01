@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   review:
-    uses: seorilabs/.github/.github/workflows/jansoree-review-v1.yml@a751efb47fc783e2c092b3d99cf46127dc81430c
+    uses: seorilabs/.github/.github/workflows/jansoree-review-v1.yml@baa3aadb3673035af1b7987abb7aa50947b35556
     secrets:
       MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
       JANSOREE_APP_PRIVATE_KEY: ${{ secrets.JANSOREE_APP_PRIVATE_KEY }}
