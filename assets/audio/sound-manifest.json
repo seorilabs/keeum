@@ -1,0 +1,20 @@
+{
+ "model": "stable-audio-2.5",
+ "out_dir": ".",
+ "tracks": [
+  {"name": "bgm_home", "type": "loop", "duration": 90, "crossfade": 3,
+   "prompt": "warm cozy slice-of-life background music, felt piano and nylon-string guitar, soft glockenspiel, light brushed percussion, gentle and heartwarming, sunny morning at home mood"},
+  {"name": "bgm_transition", "type": "loop", "duration": 60, "crossfade": 3,
+   "prompt": "warm tender emotional underscore, soft piano arpeggios and warm string pads, gentle quiet tension, intimate family conversation mood, slow and restrained"},
+  {"name": "bgm_ending", "type": "loop", "duration": 75, "crossfade": 3,
+   "prompt": "reflective heartwarming underscore, soft felt piano and music box, warm string pad, nostalgic and hopeful, slow and gentle"},
+  {"name": "sting_positive", "type": "oneshot", "duration": 3,
+   "prompt": "short bright cheerful reward jingle, glockenspiel and marimba, single quick rising phrase, no background music, no background noise"},
+  {"name": "sting_bonding", "type": "oneshot", "duration": 3,
+   "prompt": "short warm heart-melting jingle, celesta and a soft harp glissando, single gentle phrase, no background music, no background noise"},
+  {"name": "sting_new_ending", "type": "oneshot", "duration": 5,
+   "prompt": "short warm celebratory fanfare, felt piano chord with glockenspiel sparkle and a soft string swell, single celebratory phrase, no background music, no background noise"},
+  {"name": "sting_gacha_special", "type": "oneshot", "duration": 4,
+   "prompt": "short magical sparkling reveal jingle, harp glissando and wind chimes ending on a warm bell note, single phrase, no background music, no background noise"}
+ ]
+}

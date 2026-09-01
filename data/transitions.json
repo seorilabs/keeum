@@ -1,0 +1,36 @@
+{
+  "_note": "전환기 기질 재형성 이벤트. 성공 확률 = f(유대감) + 정합 보정 + 정서 보정. 광고 부스트 +20%p 1회. 유료로 성향을 바꾸지 않는다.",
+  "transitions": [
+    {
+      "gate": "infant_elementary", "from_stage": "infant", "to_stage": "elementary",
+      "title": "초등 입학을 앞두고", "difficulty": 0.0,
+      "body": "곧 학교에 가는 아이. 온 가족이 둘러앉아 어떤 아이로 자랐으면 하는지 진지하게 이야기해요. 기초 기질이 형성되는 시기예요.",
+      "options": [
+        {"target": "diligent", "label": "차분한 습관 잡아주기", "desc": "매일의 루틴으로 성실함을 심어요."},
+        {"target": "immersive", "label": "좋아하는 것에 파고들게", "desc": "한 가지에 깊이 몰입하는 아이로."},
+        {"target": "relaxed", "label": "느긋하게 자라도록", "desc": "조급함 없이 자기 속도로."}
+      ]
+    },
+    {
+      "gate": "elementary_middle", "from_stage": "elementary", "to_stage": "middle",
+      "title": "사춘기의 대전환", "difficulty": 0.12, "reveal_latent": true,
+      "body": "몸도 마음도 크게 변하는 시기. 성향이 재편되고 잠재된 적성이 깨어날 수 있어요. 급격한 변화일수록 저항이 커요.",
+      "options": [
+        {"target": "competitive", "label": "목표 의식 심어주기", "desc": "승부욕으로 스스로를 밀어붙이게."},
+        {"target": "immersive", "label": "몰입의 즐거움 키우기", "desc": "깊이 파고드는 힘을 길러요."},
+        {"target": "sensitive", "label": "감성과 공감 존중하기", "desc": "풍부한 감성을 결로 받아들여요."},
+        {"target": "diligent", "label": "꾸준함을 다지기", "desc": "흔들리지 않는 성실함으로."}
+      ]
+    },
+    {
+      "gate": "middle_high", "from_stage": "middle", "to_stage": "high",
+      "title": "진로의 갈림길", "difficulty": 0.2,
+      "body": "고등학교 진학과 함께 진로 정체성이 고착돼요. 지금의 선택이 아이의 방향을 결정해요.",
+      "options": [
+        {"target": "competitive", "label": "입시 승부사로", "desc": "명문대를 향한 승부욕."},
+        {"target": "immersive", "label": "한 분야의 전문가로", "desc": "깊이로 승부하는 몰입형."},
+        {"target": "diligent", "label": "성실한 노력형으로", "desc": "묵묵히 쌓는 힘."}
+      ]
+    }
+  ]
+}

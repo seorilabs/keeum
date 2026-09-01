@@ -1,0 +1,77 @@
+{
+  "_note": "엔딩 2층 구조. requires 를 만족하는 것 중 위에서부터(priority) 선택. 모든 엔딩은 긍정 보상(힐링 원칙). academic=5과목 평균, applied=원서 선택(hanul/stable/art/free).",
+  "applications": {
+    "hanul": "한울대 도전 (상향)",
+    "stable": "안정 지원 (합격 우선)",
+    "art": "예체능·특기 전형",
+    "free": "진로 자유 (창업·자기 길)"
+  },
+  "endings": [
+    {
+      "id": "caught_scandal", "title": "편법의 대가", "axis": "downfall",
+      "university": "입시 낙마", "career": "다시 쓰는 이야기", "cg": true,
+      "requires": {"exposed": true},
+      "epilogue": "지름길은 결국 무너졌어요. 하지만 아이는 넘어진 자리에서 다시 일어서는 법을 배웠어요. 진짜 인생은 이제부터예요."
+    },
+    {
+      "id": "hanul_happy", "title": "한울대 합격 — 행복한 합격", "axis": "prestige",
+      "university": "한울대학교", "career": "무엇이든 될 수 있는 아이", "cg": true,
+      "requires": {"academic_min": 80, "emotion_min": 60, "stress_max": 62, "applied": "hanul"},
+      "epilogue": "합격 문자 앞에서 온 가족이 끌어안고 울었어요. 성적표보다 환하게 웃는 아이의 얼굴이 진짜 상장이었어요. 균형을 잃지 않고 여기까지 왔어요."
+    },
+    {
+      "id": "hanul_burnout", "title": "한울대 합격 — 번아웃 합격", "axis": "prestige",
+      "university": "한울대학교", "career": "쉼이 필요한 합격생", "cg": true,
+      "requires": {"academic_min": 80, "applied": "hanul"},
+      "epilogue": "원하던 대학에 붙었지만 아이의 얼굴엔 웃음이 없어요. 합격증을 손에 쥔 채 오래 잠들었어요. 이제는 쉬어도 괜찮다고, 그 말을 더 일찍 해줄걸 그랬어요."
+    },
+    {
+      "id": "art_star", "title": "무대 위의 빛 — 예체능 성공", "axis": "talent",
+      "university": "한울예술대학교", "career": "예술가", "cg": true,
+      "requires": {"talent_min": 72, "applied": "art"},
+      "epilogue": "성적으로는 설명되지 않던 아이의 반짝임이 무대 위에서 터졌어요. 남들이 가지 않은 길 끝에 아이만의 빛이 있었어요."
+    },
+    {
+      "id": "startup", "title": "내 길을 만드는 사람 — 창업가", "axis": "entrepreneur",
+      "university": "자기만의 길", "career": "창업가", "cg": true,
+      "requires": {"talent_min": 55, "bonding_min": 68, "applied": "free"},
+      "epilogue": "대학 간판 대신 자기 아이디어를 택했어요. 두려움 없이 도전할 수 있는 건, 뒤에 든든한 가족이 있기 때문이에요."
+    },
+    {
+      "id": "happy_ordinary", "title": "평범하지만 행복한 아이", "axis": "wellbeing",
+      "university": "가까운 대학·자기 속도", "career": "행복한 사람", "cg": true,
+      "requires": {"emotion_min": 74, "bonding_min": 72},
+      "epilogue": "명문대도, 화려한 직업도 아니에요. 대신 아이는 잘 웃고, 잘 자고, 힘들 때 부모를 찾아와요. 어쩌면 이게 가장 어려운 성공이에요."
+    },
+    {
+      "id": "major_univ", "title": "명문대 합격", "axis": "prestige",
+      "university": "한울대·누리대 인근 명문", "career": "성실한 대학생", "cg": false,
+      "requires": {"academic_min": 70},
+      "epilogue": "차곡차곡 쌓은 노력이 결실을 맺었어요. 화려하진 않아도 스스로 일군 합격이라 더 값져요."
+    },
+    {
+      "id": "artisan", "title": "손끝의 장인", "axis": "talent",
+      "university": "특성화의 길", "career": "장인·기술 전문가", "cg": false,
+      "requires": {"talent_min": 65, "applied": "free"},
+      "epilogue": "책상보다 손으로 익히는 게 빠른 아이였어요. 자기 손끝을 믿는 사람으로 자랐어요."
+    },
+    {
+      "id": "late_bloomer", "title": "뒤늦게 피는 꽃", "axis": "wellbeing",
+      "university": "재도전·평생학습", "career": "늦게 피는 사람", "cg": false,
+      "requires": {"emotion_min": 66},
+      "epilogue": "지금은 남들보다 느려 보여도, 마음이 단단한 아이는 언젠가 자기 계절에 활짝 피어요. 부모는 그 계절을 믿고 기다려요."
+    },
+    {
+      "id": "retry_exam", "title": "재수의 갈림길", "axis": "regroup",
+      "university": "1년의 유예", "career": "다시 준비하는 사람", "cg": false,
+      "requires": {"academic_min": 50},
+      "epilogue": "이번엔 아쉬웠어요. 하지만 아이는 스스로 한 번 더 해보겠다고 말해요. 그 말 안에 이미 자란 마음이 보여요."
+    },
+    {
+      "id": "quiet_growth", "title": "조용한 성장", "axis": "wellbeing",
+      "university": "자기만의 속도", "career": "자기 삶의 주인", "cg": false,
+      "requires": {},
+      "epilogue": "숫자로는 다 담기지 않는 시간이었어요. 아이는 아이대로, 부모는 부모대로 조금씩 자랐어요. 이 육아에 실패란 없어요."
+    }
+  ]
+}
