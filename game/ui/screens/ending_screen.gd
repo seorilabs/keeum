@@ -101,7 +101,10 @@ func _share() -> void:
 	if not is_inside_tree():
 		return
 	if path == "":
-		router.toast("결과 카드를 저장했어요 (공유는 스토어 빌드에서)")
+		if DisplayServer.get_name().to_lower() == "headless":
+			router.toast("공유 카드는 실제 화면 환경에서 저장할 수 있어요")
+		else:
+			router.toast("결과 카드를 저장하지 못했어요. 저장 공간을 확인해 주세요")
 	else:
 		router.toast("결과 카드를 저장했어요: %s" % path.replace("user://", ""))
 

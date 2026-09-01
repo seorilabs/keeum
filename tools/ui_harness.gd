@@ -91,8 +91,17 @@ func run_smoke() -> void:
 		"appearance": {"hair": "twin_tail", "outfit": "F28C79"},
 	})
 	var run: GameRun = GameController.run
-	var a := str((run.available_activities("A")[0] as Dictionary).get("id", ""))
-	var b := str((run.available_activities("B")[0] as Dictionary).get("id", ""))
+	var learn_activities: Array = run.available_activities("A")
+	var leisure_activities: Array = run.available_activities("B")
+	if learn_activities.is_empty() or leisure_activities.is_empty() \
+			or run.content.events.size() < 2 \
+			or run.content.transitions.is_empty() \
+			or run.content.endings.size() < 2:
+		push_error("UIHarness: 필수 스모크 콘텐츠가 없거나 불완전합니다")
+		main.get_tree().quit(1)
+		return
+	var a := str((learn_activities[0] as Dictionary).get("id", ""))
+	var b := str((leisure_activities[0] as Dictionary).get("id", ""))
 
 	var pre := [["onboarding", null], ["home", null], ["activity", null]]
 	for c: Array in pre:

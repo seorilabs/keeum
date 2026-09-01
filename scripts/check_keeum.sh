@@ -2,6 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+godot_bin="${GODOT_BIN:-godot}"
 log_dir="${KEEUM_CHECK_LOG_DIR:-}"
 owns_log_dir=0
 
@@ -52,11 +53,11 @@ GODOT_QUALITY_GATE_LOG_DIR="$log_dir/quality" \
 run_godot_check \
   "autoplay" \
   "모든 검증 통과" \
-  godot --headless --path "$repo_root" --script res://tools/autoplay.gd
+  "$godot_bin" --headless --path "$repo_root" --script res://tools/autoplay.gd
 
 run_godot_check \
   "ui-smoke" \
   "UI 스모크 완료" \
-  godot --headless --path "$repo_root" -- --ui-smoke
+  "$godot_bin" --headless --path "$repo_root" -- --ui-smoke
 
 echo "[keeum-check] all checks passed"
