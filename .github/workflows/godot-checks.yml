@@ -23,4 +23,6 @@ jobs:
       with_export_templates: false
       runs_on: seorilabs-rpi-arm64
       project_dir: "."
-      check_command: bash scripts/check_keeum.sh
+      check_command: |
+        bash scripts/check_fleet_source_contract.sh
+        bash scripts/check_keeum.sh
