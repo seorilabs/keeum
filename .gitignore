@@ -5,8 +5,8 @@ AGENT.local.md
 # Godot local state and generated outputs
 .godot/
 /android/
-/build/
-export_presets.cfg
+/build/*
+!/build/.gdignore
 *.import
 *.tmp
 

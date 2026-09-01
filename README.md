@@ -4,7 +4,7 @@
 
 | 항목 | 값 |
 | --- | --- |
-| 상태 | 기획 승인 완료(2026-07-25), Core Gate 착수 전 |
+| 상태 | 플레이 가능한 Vertical Slice · Android/iOS build target 준비 |
 | 스택 | Godot + Firebase (Clean Architecture) |
 | 출시 타깃 | Google Play · Apple App Store (AppsInToss는 phase 2 후보) |
 | package / bundle | `com.seorilabs.keeum` |
@@ -59,9 +59,20 @@ godot --headless --path . -- --ui-play
 # 실 GL 화면 캡처(시각 검수용)
 godot --path . -- --ui-smoke --shots <dir>
 
-# 안드로이드 실기기 빌드·설치 (export_presets.cfg 는 .gitignore 대상이라 아래 값으로 프리셋 생성)
-godot --headless --path . --export-debug "Android" build/android/keeum.apk
-adb install -r build/android/keeum.apk
+# Android build-only AAB
+mkdir -p build/android
+SEORI_BUILD_MODE=build-only \
+SEORI_SOURCE_SHA="$(git rev-parse HEAD)" \
+SEORI_ANDROID_AAB_OUTPUT="$(pwd)/build/android/keeum.aab" \
+bash scripts/build-android.sh
+
+# iOS unsigned Xcode project build-only
+mkdir -p build/ios
+godot --headless --path . --export-release "iOS" build/ios/keeum-ios-project
+xcodebuild -project build/ios/keeum-ios-project.xcodeproj \
+  -scheme keeum-ios-project -configuration Release \
+  -sdk iphoneos -destination 'generic/platform=iOS' \
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
 ```
 
 에셋 재생성 후에는 배경 여백 트림과 얼굴 앵커 재산출을 함께 돌린다.
@@ -71,17 +82,20 @@ python3 tools/trim_bg_margins.py      # bg_*/cg_* 흰 여백 제거(엔진 cover
 python3 tools/compute_face_anchors.py # char_* 얼굴 앵커 재계산 → assets/art/face-anchors.json
 ```
 
-### Android export 프리셋 값 (재현용)
+### 마켓 build target 계약
 
-`export_presets.cfg`는 커밋되지 않으므로 프리셋을 새로 만들 때 아래를 맞춘다.
+root `export_presets.cfg`는 Backoffice discovery와 중앙 build workflow가 함께 읽는 소스 계약이다. 버전 정본은 preset이 아니라 GitHub 릴리즈 태그 `vX.Y.Z`이며, 중앙 workflow가 태그 파생 version name/code를 주입하고 산출물 metadata를 다시 대조한다.
 
 | 항목 | 값 | 이유 |
 | --- | --- | --- |
-| `gradle_build/use_gradle_build` | `false` (APK) | 프리빌트 템플릿으로 실기기 검증 |
+| Android preset | `Android`, AAB, Gradle build | Google Play build target |
+| iOS preset | `iOS`, unsigned Xcode project | Xcode Cloud/managed signing 전 단계 |
 | `architectures/arm64-v8a` | `true` (나머지 false) | 실기기·마켓 타깃 |
-| `package/unique_name` | `com.seorilabs.keeum` | DEC-031 |
+| package / bundle | `com.seorilabs.keeum` | DEC-031 |
 | `screen/immersive_mode` | **`false`** | true면 safe area 인셋이 0이 되어 하단 CTA가 제스처 내비게이션과 충돌한다(실기기 확인) |
-| `exclude_filter` | `assets/art/raw/*, assets/audio/raw/*, assets/art/qa_sheet.png, *-manifest.json, ASSET-PROVENANCE.md, docs/*` | 원본·문서 제외 |
+| `exclude_filter` | `android/*, build/*, assets/art/raw/*, assets/audio/raw/*, assets/art/qa_sheet.png, assets/art/asset-manifest.json, assets/audio/sound-manifest.json, assets/ASSET-PROVENANCE.md, docs/*` | 생성물·원본·문서 제외 |
+
+서명 파일, 비밀번호와 앱별 provisioning profile은 source에 넣지 않는다. 공개 Team ID만 활성 공용 identity `shared/apple/distribution`과 일치하게 고정하고, 실제 release 서명 재료는 중앙 credential binding과 공급자 관리 서명이 직접 주입한다.
 
 밸런스 수치는 설계상 v0(Remote Config 튜닝 대상)이며, 광고·IAP·Firebase·가챠 결제는 어댑터 스텁으로 두고 코어 오프라인 플레이를 완성했다.
 
