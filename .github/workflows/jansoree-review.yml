@@ -1,0 +1,21 @@
+# PR diff를 조직 Jansoree 리뷰 재사용 워크플로우로 리뷰한다.
+name: Jansoree Review
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: jansoree-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    uses: seorilabs/.github/.github/workflows/jansoree-review-v1.yml@a751efb47fc783e2c092b3d99cf46127dc81430c
+    secrets:
+      MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+      JANSOREE_APP_PRIVATE_KEY: ${{ secrets.JANSOREE_APP_PRIVATE_KEY }}
