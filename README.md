@@ -93,7 +93,7 @@ root `export_presets.cfg`는 Backoffice discovery와 중앙 build workflow가 �
 | `architectures/arm64-v8a` | `true` (나머지 false) | 실기기·마켓 타깃 |
 | package / bundle | `com.seorilabs.keeum` | DEC-031 |
 | `screen/immersive_mode` | **`false`** | true면 safe area 인셋이 0이 되어 하단 CTA가 제스처 내비게이션과 충돌한다(실기기 확인) |
-| `exclude_filter` | `android/*, build/*, assets/art/raw/*, assets/audio/raw/*, assets/art/qa_sheet.png, *-manifest.json, ASSET-PROVENANCE.md, docs/*` | 생성물·원본·문서 제외 |
+| `exclude_filter` | `android/*, build/*, assets/art/raw/*, assets/audio/raw/*, assets/art/qa_sheet.png, assets/art/asset-manifest.json, assets/audio/sound-manifest.json, assets/ASSET-PROVENANCE.md, docs/*` | 생성물·원본·문서 제외 |
 
 서명 파일, 비밀번호와 앱별 provisioning profile은 source에 넣지 않는다. 공개 Team ID만 활성 공용 identity `shared/apple/distribution`과 일치하게 고정하고, 실제 release 서명 재료는 중앙 credential binding과 공급자 관리 서명이 직접 주입한다.
 

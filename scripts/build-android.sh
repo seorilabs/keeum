@@ -18,7 +18,7 @@ set -a
 . ./build.env
 set +a
 
-for tool in godot java keytool jarsigner python3 unzip; do
+for tool in godot git java keytool jarsigner python3 unzip; do
   command -v "$tool" >/dev/null 2>&1 || fail "빌더 이미지에 $tool 이 없다"
 done
 
@@ -34,13 +34,13 @@ esac
 [[ "$SEORI_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] \
   || fail "SEORI_SOURCE_SHA는 소문자 full commit SHA여야 한다"
 
-if [[ -e .git ]]; then
-  actual_sha="$(git rev-parse 'HEAD^{commit}')"
-  [[ "$actual_sha" == "$SEORI_SOURCE_SHA" ]] \
-    || fail "checkout SHA와 중앙 binding SHA가 다르다"
-  [[ -z "$(git status --porcelain=v1 --untracked-files=normal)" ]] \
-    || fail "checkout에 커밋되지 않은 변경이 있어 중앙 source binding을 증명할 수 없다"
-fi
+[[ -e .git ]] \
+  || fail "Git checkout이 아니어서 중앙 source binding을 증명할 수 없다"
+actual_sha="$(git rev-parse 'HEAD^{commit}')"
+[[ "$actual_sha" == "$SEORI_SOURCE_SHA" ]] \
+  || fail "checkout SHA와 중앙 binding SHA가 다르다"
+[[ -z "$(git status --porcelain=v1 --untracked-files=normal)" ]] \
+  || fail "checkout에 커밋되지 않은 변경이 있어 중앙 source binding을 증명할 수 없다"
 
 : "${SEORI_ANDROID_AAB_OUTPUT:?SEORI_ANDROID_AAB_OUTPUT이 필요하다}"
 [[ "$SEORI_ANDROID_AAB_OUTPUT" = /* && "$SEORI_ANDROID_AAB_OUTPUT" == *.aab ]] \

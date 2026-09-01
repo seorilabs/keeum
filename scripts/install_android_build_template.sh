@@ -17,6 +17,7 @@ fail() {
 [[ -d "$project_dir" ]] || fail "프로젝트 디렉터리 없음: $project_dir"
 command -v "$godot_bin" >/dev/null 2>&1 || fail "Godot 바이너리를 찾을 수 없음: $godot_bin"
 command -v unzip >/dev/null 2>&1 || fail "unzip이 필요함"
+command -v python3 >/dev/null 2>&1 || fail "python3가 필요함"
 
 if [[ -n "${GODOT_VERSION:-}" ]]; then
   template_version="${GODOT_VERSION}.${GODOT_STATUS:-stable}"
