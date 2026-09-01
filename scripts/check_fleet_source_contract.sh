@@ -23,21 +23,21 @@ for required in build.env scripts/build-android.sh scripts/install_android_build
 done
 [[ "$(git -C "$repo_root" ls-files build/.gdignore)" == "build/.gdignore" ]] \
   || fail "tracked build/.gdignore is required to isolate generated exports"
-[[ "$(rg -c '^platform="Android"$' "$preset_file")" -eq 1 ]] \
+[[ "$(grep -cE '^platform="Android"$' "$preset_file" || true)" -eq 1 ]] \
   || fail "exactly one Android export preset is required"
-[[ "$(rg -c '^platform="iOS"$' "$preset_file")" -eq 1 ]] \
+[[ "$(grep -cE '^platform="iOS"$' "$preset_file" || true)" -eq 1 ]] \
   || fail "exactly one iOS export preset is required"
-[[ "$(rg -c '^package/unique_name="com\.seorilabs\.keeum"$' "$preset_file")" -eq 1 ]] \
+[[ "$(grep -cE '^package/unique_name="com\.seorilabs\.keeum"$' "$preset_file" || true)" -eq 1 ]] \
   || fail "Android package must be com.seorilabs.keeum"
-[[ "$(rg -c '^application/bundle_identifier="com\.seorilabs\.keeum"$' "$preset_file")" -eq 1 ]] \
+[[ "$(grep -cE '^application/bundle_identifier="com\.seorilabs\.keeum"$' "$preset_file" || true)" -eq 1 ]] \
   || fail "iOS bundle must be com.seorilabs.keeum"
-[[ "$(rg -c '^application/app_store_team_id="HCDUXX4Z3X"$' "$preset_file")" -eq 1 ]] \
+[[ "$(grep -cE '^application/app_store_team_id="HCDUXX4Z3X"$' "$preset_file" || true)" -eq 1 ]] \
   || fail "iOS build target must use the active shared Apple team identity"
-rg -q '^gradle_build/export_format=1$' "$preset_file" \
+grep -qE '^gradle_build/export_format=1$' "$preset_file" \
   || fail "Android export must produce an AAB"
-rg -q '^application/export_project_only=true$' "$preset_file" \
+grep -qE '^application/export_project_only=true$' "$preset_file" \
   || fail "iOS build target must export an unsigned Xcode project"
-[[ "$(rg -c '^exclude_filter="[^"]*build/\*' "$preset_file")" -eq 2 ]] \
+[[ "$(grep -cE '^exclude_filter="[^"]*build/\*' "$preset_file" || true)" -eq 2 ]] \
   || fail "all market exports must exclude generated build artifacts"
 
 if git -C "$repo_root" ls-files \

@@ -38,6 +38,8 @@ if [[ -e .git ]]; then
   actual_sha="$(git rev-parse 'HEAD^{commit}')"
   [[ "$actual_sha" == "$SEORI_SOURCE_SHA" ]] \
     || fail "checkout SHA와 중앙 binding SHA가 다르다"
+  [[ -z "$(git status --porcelain=v1 --untracked-files=normal)" ]] \
+    || fail "checkout에 커밋되지 않은 변경이 있어 중앙 source binding을 증명할 수 없다"
 fi
 
 : "${SEORI_ANDROID_AAB_OUTPUT:?SEORI_ANDROID_AAB_OUTPUT이 필요하다}"
