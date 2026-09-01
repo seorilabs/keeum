@@ -153,6 +153,11 @@ func _apply_activity(id: String, result: Dictionary) -> void:
 	var act := content.activity(id)
 	if act.is_empty():
 		return
+	# 비용을 전액 지불할 수 없는 활동은 성장·재화·기록 어느 것도 적용하지 않는다.
+	# add_money 가 음수 잔액을 0으로 잘라내므로, 이 가드가 없으면 지불하지 않은
+	# 성장 효과만 남는다. UI를 우회한 직접 호출도 여기서 막힌다.
+	if int(act.get("cost", 0)) > 0 and not household.can_afford(int(act.get("cost", 0))):
+		return
 	result["cards"].append(act.get("name", id))
 	result["played"].append({
 		"id": id, "name": str(act.get("name", id)),

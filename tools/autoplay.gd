@@ -8,6 +8,7 @@ var _fail := 0
 func _initialize() -> void:
 	print("=== keeum autoplay 검증 ===")
 	_check_growth_formula()
+	_check_cost_invariants()
 	_play_full_round()
 	if _fail == 0:
 		print("\n✅ 모든 검증 통과")
@@ -56,6 +57,52 @@ func _expect(label: String, got: int, want: int) -> void:
 	else:
 		print("  ✗ %s = %d (기대 %d)" % [label, got, want])
 		_fail += 1
+
+# ---------------------------------------------------------------- 비용 불변식 (#8)
+## 비용을 전액 지불할 수 없는 활동은 성장·재화·턴 기록에 부분 적용되지 않아야 한다.
+## add_money 의 0 하한 때문에 가드가 없으면 "지불 없는 성장"이 남는 회귀를 고정한다.
+func _check_cost_invariants() -> void:
+	print("\n[비용 불변식] 무료 성장 차단 (#8)")
+	var content := ContentDB.new()
+	if not content.load_all():
+		print("  ✗ 콘텐츠 로드 실패"); _fail += 1; return
+
+	# 1) 재력 0 + 보너스 슬롯 final_intensive(비용 200) → 무료 성장 차단.
+	var run := _fresh_run(content)
+	run.household.money = 0
+	var academic_before := run.child.academic_average()
+	var r1 := run.resolve_turn("", "", "final_intensive")
+	_expect("재력0 보너스 비용200: played 수", (r1["played"] as Array).size(), 0)
+	_expect("재력0 보너스 비용200: 성적 불변", run.child.academic_average(), academic_before)
+	_expect("재력0 보너스 비용200: 잔액=기본수입만", run.household.money, Balance.BASE_INCOME_PER_TURN)
+
+	# 2) 개별로는 가능해도 순차 잔액이 모자란 활동은 통째로 미적용.
+	#    재력 60: 수입 50 합산 110 < specialty_math_spartan(120) → A 미적용,
+	#    남은 110 >= family_outing(60) → B 만 적용.
+	run = _fresh_run(content)
+	run.child.stage = "elementary"
+	run.household.money = 60
+	var r2 := run.resolve_turn("specialty_math_spartan", "family_outing", "")
+	var played_ids: Array[String] = []
+	for p: Dictionary in r2["played"]:
+		played_ids.append(str(p.get("id", "")))
+	_expect("합산 초과: 미지불 학습 미적용", 1 if not played_ids.has("specialty_math_spartan") else 0, 1)
+	_expect("합산 초과: 지불 가능한 여가만 적용", 1 if played_ids.has("family_outing") else 0, 1)
+	_expect("합산 초과: 잔액 정합", run.household.money, 60 + Balance.BASE_INCOME_PER_TURN - 60)
+
+	# 3) 정상 조합: 기본 수입 1회 + 비용 1회 차감, 성장 유지.
+	run = _fresh_run(content)
+	run.household.money = Balance.START_MONEY
+	var r3 := run.resolve_turn("home_reading", "nature_play", "")
+	_expect("정상 조합: played 수", (r3["played"] as Array).size(), 2)
+	_expect("정상 조합: 수입·비용 각 1회",
+		run.household.money, Balance.START_MONEY + Balance.BASE_INCOME_PER_TURN - 30)
+
+func _fresh_run(content: ContentDB) -> GameRun:
+	var run := GameRun.new()
+	run.setup(content)
+	run.start_new({"name": "검산", "gender": "neutral", "generation": 1, "seed": 20260901})
+	return run
 
 # ---------------------------------------------------------------- 완주
 func _play_full_round() -> void:
