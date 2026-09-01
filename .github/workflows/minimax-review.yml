@@ -1,0 +1,21 @@
+# PR diff를 조직 MiniMax 리뷰 재사용 워크플로우로 리뷰한다.
+name: MiniMax Review
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: minimax-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    uses: seorilabs/.github/.github/workflows/minimax-review-v1.yml@b56a69797d3e47aaec93fc9f045eec4c327e93d1
+    secrets:
+      MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
