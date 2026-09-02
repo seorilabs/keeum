@@ -10,24 +10,39 @@ var content: ContentDB
 var profile: Profile
 var run: GameRun
 var last_selection: Dictionary = {}  # 지난 달 유지용 {a,b,bonus}
+var last_load_status: String = LocalSave.STATUS_EMPTY  # 세이브 로드 결과(#12)
 
 func _ready() -> void:
 	content = ContentDB.new()
 	if not content.load_all():
 		push_error("GameController: 콘텐츠 로드 실패")
-	_load_profile()
-	_load_run()
+	restore_from_disk()
+
+## 세이브를 status 와 함께 한 번만 읽어 프로필·회차를 복원한다(#12).
+## 손상 세이브는 격리해 증거로 남기고, 백업 복구본은 본 파일로 승격한다.
+func restore_from_disk() -> void:
+	var result := LocalSave.load_result()
+	last_load_status = String(result.get("status", LocalSave.STATUS_EMPTY))
+	var data: Dictionary = result.get("data", {})
+	_load_profile(data)
+	_load_run(data)
+	match last_load_status:
+		LocalSave.STATUS_CORRUPT:
+			push_warning("GameController: 세이브 손상 — 원본을 격리하고 새 프로필로 시작")
+			LocalSave.quarantine_corrupt()
+		LocalSave.STATUS_RECOVERED:
+			push_warning("GameController: 백업 세대에서 세이브 복구")
+			_persist()
 
 # ---------------------------------------------------------------- 프로필
-func _load_profile() -> void:
-	var data := LocalSave.load_data()
+func _load_profile(data: Dictionary) -> void:
 	if data.has("profile"):
 		profile = Profile.from_dict(data["profile"])
 	else:
 		profile = Profile.new()
 
-func _load_run() -> void:
-	var data := LocalSave.load_data()
+func _load_run(data: Dictionary) -> void:
+	run = null
 	if data.has("run") and not (data["run"] as Dictionary).is_empty():
 		run = GameRun.new()
 		run.setup(content)
