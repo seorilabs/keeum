@@ -51,6 +51,11 @@ GODOT_QUALITY_GATE_LOG_DIR="$log_dir/quality" \
   bash "$repo_root/scripts/godot_quality_gate.sh" --project "$repo_root"
 
 run_godot_check \
+  "save-probe" \
+  "세이브 검증 통과" \
+  "$godot_bin" --headless --path "$repo_root" --script res://tools/save_probe.gd
+
+run_godot_check \
   "autoplay" \
   "모든 검증 통과" \
   "$godot_bin" --headless --path "$repo_root" --script res://tools/autoplay.gd
