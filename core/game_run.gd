@@ -55,12 +55,13 @@ func start_new(config: Dictionary) -> void:
 	child.emotion = 60
 	child.stress = 15
 
-	# 첫인상 보너스.
-	var impression: Dictionary = config.get("impression", {})
-	_apply_stat_bundle(impression)
-
 	household = Household.new()
 	household.generation = int(config.get("generation", 1))
+
+	# 첫인상 보너스 — child·household 가 모두 만들어진 뒤에 적용해야
+	# bonding·money 같은 가계 보정이 유실되지 않는다 (#11).
+	var impression: Dictionary = config.get("impression", {})
+	_apply_stat_bundle(impression)
 	turn_index = 0
 	stage_turn = 0
 	semester_turn = 0
