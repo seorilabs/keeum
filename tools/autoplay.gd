@@ -9,6 +9,7 @@ func _initialize() -> void:
 	print("=== keeum autoplay 검증 ===")
 	_check_growth_formula()
 	_check_cost_invariants()
+	_check_first_impressions()
 	_play_full_round()
 	if _fail == 0:
 		print("\n✅ 모든 검증 통과")
@@ -102,6 +103,48 @@ func _fresh_run(content: ContentDB) -> GameRun:
 	var run := GameRun.new()
 	run.setup(content)
 	run.start_new({"name": "검산", "gender": "neutral", "generation": 1, "seed": 20260901})
+	return run
+
+# ---------------------------------------------------------------- 첫인상 보정 (#11)
+## data/profiles.json 의 first_impressions 전 카드가 선언한 보정치대로
+## 시작 상태에 반영되는지 검증한다. 같은 seed 의 무보정 실행과 비교하므로
+## 카드가 늘거나 보정 키가 추가돼도 자동으로 검증 대상에 들어온다.
+const IMPRESSION_SEED := 20260902
+
+func _check_first_impressions() -> void:
+	print("\n[첫인상 보정] first_impressions 전 카드 반영 (#11)")
+	var content := ContentDB.new()
+	if not content.load_all():
+		print("  ✗ 콘텐츠 로드 실패"); _fail += 1; return
+	var cards: Array = content.profiles.get("first_impressions", [])
+	if cards.is_empty():
+		print("  ✗ first_impressions 데이터 없음"); _fail += 1; return
+	var base := _impression_run({})
+	for card: Dictionary in cards:
+		var run := _impression_run(card)
+		var id := str(card.get("id", "?"))
+		_expect("%s bonding" % id, run.household.bonding,
+			clampi(base.household.bonding + int(card.get("bonding", 0)), 0, 100))
+		_expect("%s emotion" % id, run.child.emotion,
+			clampi(base.child.emotion + int(card.get("emotion", 0)), 0, 100))
+		_expect("%s stamina" % id, run.child.stamina,
+			clampi(base.child.stamina + int(card.get("stamina", 0)), 0, 100))
+		_expect("%s talent" % id, run.child.talent,
+			clampi(base.child.talent + int(card.get("talent", 0)), 0, 100))
+		_expect("%s stress" % id, run.child.stress,
+			clampi(base.child.stress + int(card.get("stress", 0)), 0, 100))
+		_expect("%s mental" % id, run.child.mental_tolerance,
+			clampi(base.child.mental_tolerance + int(card.get("mental", 0)), 0, 100))
+		_expect("%s constitution" % id, run.child.constitution,
+			clampi(base.child.constitution + int(card.get("constitution", 0)), 0, 100))
+
+func _impression_run(card: Dictionary) -> GameRun:
+	var run := GameRun.new()
+	var content := ContentDB.new()
+	content.load_all()
+	run.setup(content)
+	run.start_new({"name": "첫인상", "gender": "neutral", "generation": 1,
+		"seed": IMPRESSION_SEED, "impression": card})
 	return run
 
 # ---------------------------------------------------------------- 완주
