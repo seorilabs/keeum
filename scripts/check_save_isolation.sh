@@ -17,6 +17,9 @@ set -euo pipefail
 ## AC-5  "격리된 save_probe" 실행의 성공 마커 — save_probe.gd 의 기존 손상·복구·
 ##       쓰기실패 시나리오(_run_scenarios 2/3/4/6/7)가 격리 공간에서 그대로
 ##       통과하는지 검사(스크립트 자체는 수정하지 않았다).
+## AC-6  "평범한 --quit 실행" 절 — --ui-smoke/--ui-play 가 아닌 보통의 headless
+##       기동(빌드/임포트가 쓰는 것과 같은 맨 --quit)은 격리가 없어도 새 거부
+##       조건에 걸리지 않고 기존 손상 격리 동작을 그대로 수행하는지 검사한다.
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 godot_bin="${GODOT_BIN:-godot}"
@@ -176,4 +179,28 @@ run_cleanup_ownership_case "정리(성공 종료)" success
 run_cleanup_ownership_case "정리(실패 종료)" failure
 run_cleanup_ownership_case "정리(SIGTERM 중단)" sigterm
 
-echo "[save-isolation-check] OK — AC-1~5 를 전부 자동으로 재확인했다"
+# ------------------------------------------------------------------ AC-6
+# --ui-smoke/--ui-play 가 아닌 평범한 headless 기동(빌드/임포트 파이프라인이
+# 쓰는 것과 같은 맨 --quit)은 격리가 없어도 새 거부 조건(is_headless_ui_test_drive())에
+# 걸리지 않아야 한다. 손상 파일을 심어 두고 기존 quarantine_corrupt() 동작이
+# 그대로 일어나는지까지 확인한다 — 그렇지 않다면 이번 변경이 실제 저장 경로·
+# 로드 동작까지 바꾼 것이다.
+echo "[save-isolation-check] --ui-smoke/--ui-play 가 아닌 평범한 --quit 실행은 격리 없이도 기존 동작 그대로인지 확인" >&2
+plain_root="$(mktemp -d "${TMPDIR:-/tmp}/keeum-plain-real.XXXXXX")"
+plain_userdir="$plain_root/godot/app_userdata/$project_name"
+mkdir -p "$plain_userdir"
+printf '%s' 'not json at all -- plain-run corrupt fixture' > "$plain_userdir/keeum_save.json"
+
+env -u KEEUM_TEST_USER_DIR XDG_DATA_HOME="$plain_root" \
+  "$godot_bin" --headless --path "$repo_root" --quit \
+  > "$log_dir/plain-run.log" 2>&1 \
+  || { cat "$log_dir/plain-run.log" >&2; fail "격리 없는 평범한 --quit 실행이 실패했다 — 새 거부 조건이 실제 게임 경로까지 막고 있을 수 있다"; }
+grep -Fq -- "저장 격리" "$log_dir/plain-run.log" \
+  && { cat "$log_dir/plain-run.log" >&2; fail "평범한 --quit 실행이 새 거부/저장 관련 오류를 냈다 — is_headless_ui_test_drive() 판정이 --ui-smoke/--ui-play 가 아닌 실행까지 걸고 있을 수 있다"; }
+grep -Fq "GameController: 세이브 손상" "$log_dir/plain-run.log" \
+  || { cat "$log_dir/plain-run.log" >&2; fail "평범한 --quit 실행이 기존 손상 격리 동작(quarantine_corrupt)을 수행하지 않았다 — 저장 경로 동작이 바뀌었을 수 있다"; }
+[[ -f "$plain_userdir/keeum_save.json.corrupt" ]] \
+  || fail "평범한 --quit 실행이 기존처럼 손상 파일을 .corrupt 로 격리하지 않았다"
+rm -rf -- "$plain_root"
+
+echo "[save-isolation-check] OK — AC-1~6 를 전부 자동으로 재확인했다"
