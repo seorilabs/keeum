@@ -63,8 +63,12 @@ func _exit_tree() -> void:
 func _route_initial() -> void:
 	var gc := GameController
 	if gc.run != null:
-		if gc.run.has_steps():
-			advance_step()  # 미해결 인터루드(이벤트/전환기/입시)부터 재개
+		if not gc.run.current_step.is_empty():
+			# 화면에 떠 있었지만 선택이 아직 해결되지 않은 인터루드(#16) — 새로
+			# 뽑지 않고 저장된 항목 그대로 재개한다.
+			_show_step(gc.run.current_step)
+		elif gc.run.has_steps():
+			advance_step()  # 다음 미해결 인터루드(이벤트/전환기/입시)로 진행
 		elif gc.run.is_final_turn():
 			goto("application")
 		else:
@@ -110,7 +114,11 @@ func goto(screen_name: String, data: Variant = null) -> void:
 
 ## core 인터루드 큐를 따라 다음 화면으로.
 func advance_step() -> void:
-	var step := GameController.run.next_step() as Dictionary
+	_show_step(GameController.run.next_step())
+
+## step 딕셔너리({"screen":...})에 맞는 화면으로 이동. 큐에서 새로 꺼내지 않고
+## 저장된 current_step 을 그대로 재개할 때도 쓴다(#16).
+func _show_step(step: Dictionary) -> void:
 	match str(step.get("screen", "home")):
 		"home":
 			GameController.save_game()

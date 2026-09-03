@@ -10,6 +10,7 @@ func _initialize() -> void:
 	_check_growth_formula()
 	_check_cost_invariants()
 	_check_first_impressions()
+	_check_resume_unresolved_step()
 	_play_full_round()
 	if _fail == 0:
 		print("\n✅ 모든 검증 통과")
@@ -146,6 +147,89 @@ func _impression_run(card: Dictionary) -> GameRun:
 	run.start_new({"name": "첫인상", "gender": "neutral", "generation": 1,
 		"seed": IMPRESSION_SEED, "impression": card})
 	return run
+
+# ---------------------------------------------------------------- 재개 (#16)
+## 이벤트·전환기 화면을 띄운 채(아직 선택 미해결) 저장→복원하면 같은 항목으로
+## 돌아가고, 선택 적용 후 저장→복원하면 재적용되지 않아야 한다.
+func _check_resume_unresolved_step() -> void:
+	print("\n[재개] 미해결 이벤트·전환기 저장 복원 (#16)")
+	var content := ContentDB.new()
+	if not content.load_all():
+		print("  ✗ 콘텐츠 로드 실패"); _fail += 1; return
+
+	# 이벤트: 번아웃 조건(스트레스 임계 이상)은 RNG 와 무관하게 항상 발생한다.
+	var run := _fresh_run(content)
+	run.child.stress = Balance.BURNOUT_THRESHOLD
+	run.resolve_turn("", "")
+	if not run.has_steps():
+		print("  ✗ 번아웃 이벤트 유도 실패(사전 조건)"); _fail += 1
+	else:
+		var step: Dictionary = run.next_step()
+		_expect_str("이벤트 스텝 화면", str(step.get("screen", "")), "event")
+		_expect("이벤트 팝 직후 current_step 존재", 1 if not run.current_step.is_empty() else 0, 1)
+
+		var before_choice := _roundtrip(run, content)
+		_expect("선택 전 재개: current_step 존재", 1 if not before_choice.current_step.is_empty() else 0, 1)
+		_expect_str("선택 전 재개: 같은 이벤트 id",
+			str((before_choice.current_step.get("event", {}) as Dictionary).get("id", "?")),
+			str((step.get("event", {}) as Dictionary).get("id", "?")))
+		_expect("선택 전 재개: 효과 미적용(스트레스 그대로)", before_choice.child.stress, run.child.stress)
+
+		before_choice.resolve_event(before_choice.current_step["event"], 0)
+		_expect("선택 해결 후: current_step 비움", 1 if before_choice.current_step.is_empty() else 0, 1)
+		var stress_once := before_choice.child.stress
+
+		var after_choice := _roundtrip(before_choice, content)
+		_expect("선택 후 재개: current_step 계속 비어있음", 1 if after_choice.current_step.is_empty() else 0, 1)
+		_expect("선택 후 재개: 효과가 정확히 한 번만 반영", after_choice.child.stress, stress_once)
+
+	# 전환기: 유아 마지막 턴까지 강제 진행 → infant_elementary 게이트로 유도.
+	var run2 := _fresh_run(content)
+	run2.child.stress = 0
+	run2.stage_turn = run2.stage_total_turns() - 1
+	run2.resolve_turn("", "")
+	var step2 := {}
+	while run2.has_steps():
+		var s: Dictionary = run2.next_step()
+		if str(s.get("screen", "")) == "transition":
+			step2 = s
+			break
+	if step2.is_empty():
+		print("  ✗ 전환기 유도 실패(사전 조건)"); _fail += 1
+		return
+	_expect("전환기 팝 직후 current_step 존재", 1 if not run2.current_step.is_empty() else 0, 1)
+
+	var before_transition := _roundtrip(run2, content)
+	_expect("전환기 선택 전 재개: current_step 존재", 1 if not before_transition.current_step.is_empty() else 0, 1)
+	_expect_str("전환기 선택 전 재개: 같은 게이트",
+		str((before_transition.current_step.get("transition", {}) as Dictionary).get("gate", "?")),
+		str((step2.get("transition", {}) as Dictionary).get("gate", "?")))
+	_expect_str("전환기 선택 전 재개: 진급 전(단계 유지)", before_transition.child.stage, "infant")
+
+	before_transition.resolve_transition(before_transition.current_step["transition"], 0, false)
+	_expect("전환기 해결 후: current_step 비움", 1 if before_transition.current_step.is_empty() else 0, 1)
+	var stage_once := before_transition.child.stage
+
+	var after_transition := _roundtrip(before_transition, content)
+	_expect("전환기 해결 후 재개: current_step 계속 비어있음",
+		1 if after_transition.current_step.is_empty() else 0, 1)
+	_expect_str("전환기 해결 후 재개: 진급이 정확히 한 번만 반영", after_transition.child.stage, stage_once)
+
+## JSON 직렬화 왕복(실제 저장/복원 경로와 동일한 손실을 재현).
+func _roundtrip(run: GameRun, content: ContentDB) -> GameRun:
+	var text := JSON.stringify(run.to_dict())
+	var restored: Dictionary = JSON.parse_string(text)
+	var out := GameRun.new()
+	out.setup(content)
+	out.load_from(restored)
+	return out
+
+func _expect_str(label: String, got: String, want: String) -> void:
+	if got == want:
+		print("  ✓ %s = %s" % [label, got])
+	else:
+		print("  ✗ %s = %s (기대 %s)" % [label, got, want])
+		_fail += 1
 
 # ---------------------------------------------------------------- 완주
 func _play_full_round() -> void:
