@@ -16,6 +16,15 @@ func _ready() -> void:
 	content = ContentDB.new()
 	if not content.load_all():
 		push_error("GameController: 콘텐츠 로드 실패")
+	# --ui-smoke/--ui-play 는 이 오토로드의 _ready() 가 main.gd 의 _ready() 보다 먼저
+	# 실행되므로, 여기서 막지 않으면 라우터가 격리를 확인하기도 전에 실제 저장을
+	# 읽거나 손상 격리로 덮어쓴다(#17). 빌드·임포트 등 다른 헤드리스 실행에는
+	# 적용하지 않는다 — 기존 저장 경로·로드 동작을 바꾸지 않는다.
+	if LocalSave.is_headless_ui_test_drive() and not LocalSave.is_user_dir_isolated():
+		push_error("GameController: --ui-smoke/--ui-play 실행에 저장 격리(%s)가 없어 실제 저장을 보호하기 위해 거부한다" % LocalSave.TEST_ISOLATION_ENV)
+		profile = Profile.new()
+		get_tree().quit(1)
+		return
 	restore_from_disk()
 
 ## 세이브를 status 와 함께 한 번만 읽어 프로필·회차를 복원한다(#12).

@@ -8,6 +8,13 @@ var _fail := 0
 
 func _initialize() -> void:
 	print("=== keeum 세이브 내구성 검증 (#12) ===")
+	# GameController 오토로드의 _ready() 는 이 스크립트의 _initialize() 뒤에 실행되므로
+	# 여기서 먼저 막지 않으면 아래 _cleanup_files() 가 오토로드보다 먼저 실제 저장을
+	# 지운다(#17). 격리 없이는 아무 파일도 건드리지 않고 즉시 거부한다.
+	if not LocalSave.is_user_dir_isolated():
+		push_error("save_probe: 저장 격리(%s)가 확인되지 않아 실제 저장을 건드리지 않고 거부한다" % LocalSave.TEST_ISOLATION_ENV)
+		quit(1)
+		return
 	_cleanup_files()
 	var content := ContentDB.new()
 	if not content.load_all():

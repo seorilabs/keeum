@@ -13,12 +13,26 @@ else
   mkdir -p "$log_dir"
 fi
 
+# 실행 전용 격리 저장 공간(#17). Godot 의 user:// 는 프로젝트 이름 기준으로 공유되므로
+# checkout 을 분리해도 같은 컴퓨터의 실제 플레이 저장을 가리킨다. 매 실행마다 고유
+# 디렉터리를 만들어 XDG_DATA_HOME 으로 넘기면 이 실행의 user:// 가 통째로 여기로
+# 옮겨간다 — 실제 저장 경로·다른 동시 실행과 절대 겹치지 않는다.
+user_dir="$(mktemp -d "${TMPDIR:-/tmp}/keeum-check-userdir.XXXXXX")"
+export KEEUM_TEST_USER_DIR="$user_dir"
+export XDG_DATA_HOME="$user_dir"
+
 cleanup() {
   if [[ "$owns_log_dir" -eq 1 && -n "${log_dir:-}" && "$log_dir" != "/" ]]; then
     rm -rf -- "$log_dir"
   fi
+  if [[ -n "${user_dir:-}" && "$user_dir" != "/" ]]; then
+    rm -rf -- "$user_dir"
+  fi
 }
 trap cleanup EXIT
+
+# 검증 도구 자체가 격리 없이는 실제 저장을 건드리지 않는지 먼저 회귀 검사한다(#17).
+bash "$repo_root/scripts/check_save_isolation.sh"
 
 run_godot_check() {
   local label="$1"
