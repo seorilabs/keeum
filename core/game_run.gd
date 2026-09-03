@@ -26,6 +26,7 @@ var ad_boost_used_gate: Dictionary = {}  # 전환기별 광고 부스트 사용
 var last_result: Dictionary = {}
 var pending_ending: Dictionary = {}
 var _steps: Array = []       # 인터루드 큐
+var current_step: Dictionary = {}  # 화면에 떠 있는(아직 선택 미해결) 인터루드. 저장 대상(#16)
 
 func setup(content_db: ContentDB) -> void:
 	content = content_db
@@ -70,6 +71,7 @@ func start_new(config: Dictionary) -> void:
 	used_event_ids.clear()
 	ad_boost_used_gate.clear()
 	_steps.clear()
+	current_step = {}
 
 func _make_seed(config: Dictionary) -> int:
 	var base := 0
@@ -273,10 +275,15 @@ func _advance_stage() -> void:
 		semester_turn = 0
 
 ## UI가 결과 확인 후 다음 인터루드를 요청. 큐가 비면 홈(다음 턴).
+## 반환한 항목을 current_step 에 남겨 화면 재진입 전 종료돼도(#16) 복원 시
+## 같은 항목으로 돌아갈 수 있게 한다. 선택 해결(resolve_event/resolve_transition)이
+## current_step 을 지운다.
 func next_step() -> Dictionary:
 	if _steps.is_empty():
+		current_step = {}
 		return {"screen": "home"}
-	return _steps.pop_front()
+	current_step = _steps.pop_front()
+	return current_step
 
 func has_steps() -> bool:
 	return not _steps.is_empty()
@@ -341,6 +348,7 @@ func resolve_event(event: Dictionary, choice_index: int) -> Dictionary:
 	else:
 		_apply_stat_bundle(choice.get("effects", {}))
 		out["applied"] = choice.get("effects", {})
+	current_step = {}  # 선택 적용 완료 — 재시작 시 같은 이벤트를 다시 보여주지 않는다(#16)
 	return out
 
 func _apply_temptation(event: Dictionary, choice: Dictionary, out: Dictionary) -> Dictionary:
@@ -450,6 +458,7 @@ func resolve_transition(transition: Dictionary, option_index: int, use_ad_boost:
 		household.add_bonding(1)
 		child.add_emotion(2)
 	_advance_stage()
+	current_step = {}  # 선택 적용 완료 — 재시작 시 같은 전환기를 다시 보여주지 않는다(#16)
 	return {
 		"success": success, "chance": chance, "target": target,
 		"target_name": Balance.TEMPERAMENT_NAME.get(target, ""),
@@ -534,6 +543,7 @@ func to_dict() -> Dictionary:
 		"rng_seed": int(rng.seed),
 		"rng_state": int(rng.state),
 		"steps": _steps.duplicate(true),
+		"current_step": current_step.duplicate(true),
 	}
 
 func load_from(d: Dictionary) -> void:
@@ -549,3 +559,4 @@ func load_from(d: Dictionary) -> void:
 	rng.seed = int(d.get("rng_seed", 0))
 	rng.state = int(d.get("rng_state", rng.state))
 	_steps = d.get("steps", [])
+	current_step = d.get("current_step", {})
