@@ -20,7 +20,30 @@ const STATUS_RECOVERED := "recovered"  # 본 파일 없음/손상 → 백업 세
 const STATUS_EMPTY := "empty"          # 세이브가 아예 없는 첫 실행
 const STATUS_CORRUPT := "corrupt"      # 본 파일·백업 모두 손상
 
+## 헤드리스 검증 도구가 실제 사용자 저장과 분리된 디렉터리를 이 값으로 알려줄 때만
+## user:// 접근을 허용한다(#17). 값 자체가 아니라 실제 user:// 가 그 경로 아래에
+## 들어와 있는지까지 확인해, 변수만 세팅되고 격리(XDG_DATA_HOME 등)는 안 된 상태를 구분한다.
+const TEST_ISOLATION_ENV := "KEEUM_TEST_USER_DIR"
+
+## 격리 루트가 설정돼 있고 실제 user:// 가 그 안에 들어와 있는지 확인한다.
+static func is_user_dir_isolated() -> bool:
+	var expected := OS.get_environment(TEST_ISOLATION_ENV)
+	return not expected.is_empty() and OS.get_user_data_dir().begins_with(expected)
+
+## --ui-smoke/--ui-play 로 실행됐는지만 본다(#17 범위) — 빌드·임포트·export 등
+## 다른 헤드리스 실행은 이 판정에 넣지 않는다. 그 경로들은 기존 동작을 그대로 유지한다.
+static func is_headless_ui_test_drive() -> bool:
+	var args := OS.get_cmdline_user_args()
+	return "--ui-smoke" in OS.get_cmdline_args() or "--ui-smoke" in args or "--ui-play" in args
+
 static func save(data: Dictionary) -> bool:
+	# GameController._ready() 의 거부는 quit() 요청일 뿐 그 프레임에 이미 큐잉된
+	# 후속 호출(--ui-smoke/--ui-play 하네스의 new_game→save_game 등)을 막지 못한다.
+	# 실제 쓰기 관문인 여기서 다시 막아야 격리 없는 실행이 끝까지 흘러가도
+	# 실제 저장을 덮어쓰지 않는다(#17).
+	if is_headless_ui_test_drive() and not is_user_dir_isolated():
+		push_error("LocalSave: --ui-smoke/--ui-play 실행에 저장 격리(%s)가 없어 저장을 거부한다" % TEST_ISOLATION_ENV)
+		return false
 	var f := FileAccess.open(TMP_PATH, FileAccess.WRITE)
 	if f == null:
 		push_warning("LocalSave: 저장 열기 실패")
@@ -86,6 +109,9 @@ static func load_data() -> Dictionary:
 
 ## 손상 세이브를 덮어쓰지 않고 증거로 보존한다. 이후 저장 경로는 비워진다.
 static func quarantine_corrupt() -> void:
+	if is_headless_ui_test_drive() and not is_user_dir_isolated():
+		push_error("LocalSave: --ui-smoke/--ui-play 실행에 저장 격리(%s)가 없어 손상 격리를 거부한다" % TEST_ISOLATION_ENV)
+		return
 	var dir := DirAccess.open("user://")
 	if dir == null:
 		return
