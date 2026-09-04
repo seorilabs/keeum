@@ -1,6 +1,8 @@
 extends SceneTree
 ## 세이브 내구성 헤드리스 검증(#12). 저장 도중 프로세스가 죽어도 직전 세대가
 ## 남고, 손상·백업·첫 실행이 구분되는지 LocalSave 와 GameController 로 실증한다.
+## #22: 저장 실패·복구·손상이 조용히 지나가지 않고 save_result 발화와 화면 안내
+## 문구로 신호를 만드는지도 함께 실증한다.
 ## 실행: godot --headless --path . --script res://tools/save_probe.gd
 
 var _fail := 0
@@ -107,6 +109,41 @@ func _run_scenarios(content: ContentDB) -> void:
 	_expect("손상 원본 격리 보존", FileAccess.file_exists(LocalSave.CORRUPT_PATH))
 	_expect("격리 후 저장 경로 비움", not FileAccess.file_exists(LocalSave.SAVE_PATH))
 	corrupt_controller.free()
+
+	# 8) GameController: 저장 성공/실패마다 save_result 가 발화하고, 실패해도
+	#    메모리 상태(profile/run)는 그대로 남아 재시도가 의미를 갖는다 — #22 AC-1·AC-2.
+	_cleanup_files()
+	var probe_controller := _fresh_controller()
+	probe_controller.new_game({
+		"name": "재시도", "gender": "neutral", "generation": 1, "seed": 20260913,
+	})
+	var save_signals: Array = []
+	probe_controller.save_result.connect(func(ok: bool) -> void: save_signals.append(ok))
+	var before_profile: Dictionary = probe_controller.profile.to_dict()
+	var before_run: Dictionary = probe_controller.run.to_dict()
+	dir.make_dir(LocalSave.TMP_PATH)
+	_expect("실패 시 save_game() false 반환", not probe_controller.save_game())
+	_expect("실패 시 save_result(false) 한 번 발화", save_signals == [false])
+	_expect("실패해도 profile 메모리 보존", probe_controller.profile.to_dict() == before_profile)
+	_expect("실패해도 run 메모리 보존", probe_controller.run.to_dict() == before_run)
+	dir.remove(LocalSave.TMP_PATH)
+	save_signals.clear()
+	_expect("재시도 성공 시 save_game() true 반환", probe_controller.save_game())
+	_expect("재시도 성공 시 save_result(true) 한 번 발화", save_signals == [true])
+	probe_controller.free()
+
+	# 9) main.gd: 로드 상태별 안내 문구는 corrupt/recovered 에서만 존재한다 — #22 AC-3.
+	#    화면을 실제 트리에 넣지 않고도(스크립트만 인스턴스화) 순수 매핑을 검증한다.
+	var main_probe: Control = load("res://game/ui/main.gd").new()
+	_expect("정상 상태는 안내 없음", main_probe._load_notice_text(LocalSave.STATUS_OK).is_empty())
+	_expect("첫 실행은 안내 없음", main_probe._load_notice_text(LocalSave.STATUS_EMPTY).is_empty())
+	_expect(
+		"복구 안내 문구 존재", not main_probe._load_notice_text(LocalSave.STATUS_RECOVERED).is_empty()
+	)
+	_expect(
+		"손상 안내 문구 존재", not main_probe._load_notice_text(LocalSave.STATUS_CORRUPT).is_empty()
+	)
+	main_probe.free()
 
 
 func _fresh_controller() -> Node:

@@ -5,6 +5,7 @@ extends Node
 
 signal run_started
 signal profile_changed
+signal save_result(success: bool)  ## 저장 시도마다 발화(#22). 화면은 이걸로 실패 안내를 켜고 끈다.
 
 var content: ContentDB
 var profile: Profile
@@ -92,16 +93,26 @@ func start_next_child() -> void:
 	_persist()
 
 # ---------------------------------------------------------------- 저장
-func save_game() -> void:
-	_persist()
+## 저장을 시도하고 성공 여부를 돌려준다(#22). 실패해도 이 메서드는 메모리의
+## profile/run 을 전혀 건드리지 않으므로, 같은 호출을 다시 하는 것만으로 재시도가
+## 성립한다.
+func save_game() -> bool:
+	return _persist()
 
-func _persist() -> void:
+func _persist() -> bool:
 	var blob := {"profile": profile.to_dict()}
 	if run != null:
 		blob["run"] = run.to_dict()
 	else:
 		blob["run"] = {}
-	LocalSave.save(blob)
+	return _write(blob)
+
+## 실제 쓰기 관문. 성공 여부와 무관하게 매번 save_result 를 발화해 화면이
+## 실패 배너를 켜고(false) 재시도 성공 시 끄도록(true) 한다.
+func _write(blob: Dictionary) -> bool:
+	var ok := LocalSave.save(blob)
+	save_result.emit(ok)
+	return ok
 
 ## 코스메틱 장착/해제(가챠 "바로 입히기"·홈 옷장). item="" 이면 해제.
 func equip_cosmetic(slot: String, item: String) -> void:
@@ -115,7 +126,7 @@ func equip_cosmetic(slot: String, item: String) -> void:
 func reset_all() -> void:
 	profile = Profile.new()
 	run = null
-	LocalSave.save({"profile": profile.to_dict(), "run": {}})
+	_write({"profile": profile.to_dict(), "run": {}})
 	profile_changed.emit()
 
 # ---------------------------------------------------------------- 분석(스텁)
