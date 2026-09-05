@@ -6,6 +6,7 @@ extends Control
 
 var _host: Control
 var _toast_label: Label
+var _save_failed_banner: Control
 var _current: UIScreen
 var _current_name := ""
 var _bg: TextureRect
@@ -40,6 +41,9 @@ func _ready() -> void:
 	_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_host)
 	_build_toast()
+	_build_save_failed_banner()
+	GameController.save_result.connect(_on_save_result)
+	_show_load_status_notice()
 	# 안드로이드 백버튼: 노티피케이션이 자식 노드까지 전파되지 않는 경우가 있어
 	# Window 시그널도 함께 연결한다(중복 호출은 _on_back 에서 프레임 가드로 무시).
 	var win := get_window()
@@ -224,6 +228,44 @@ func _build_toast() -> void:
 	_toast_label = l
 	# 토스트 표시 시 패널도 함께 보이도록 라벨 가시성에 연동.
 	l.visibility_changed.connect(func() -> void: panel.visible = l.visible)
+
+# ------------------------------------------------------------ 저장 실패 배너(#22)
+## 저장이 조용히 지나가지 않도록 화면 어디에 있든 뜨는 배너. 토스트와 달리
+## 자동으로 사라지지 않고, save_result(true) 가 올 때까지(재시도 성공) 남는다.
+func _on_save_result(success: bool) -> void:
+	_save_failed_banner.visible = not success
+
+func _build_save_failed_banner() -> void:
+	var panel := UIKit.panel(UIKit.CARD, 18)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	panel.position.y += 20.0 + float(UIKit.safe_insets()["top"])
+	panel.z_index = 100
+	panel.visible = false
+	var h := UIKit.hbox(16)
+	panel.add_child(h)
+	h.add_child(UIKit.label("저장에 실패했어요. 진행 상황은 남아 있으니 다시 시도해 주세요.", 22, UIKit.TEXT))
+	var retry := UIKit.button("다시 저장", true)
+	retry.pressed.connect(func() -> void:
+		AudioBus.tap()
+		GameController.save_game())
+	h.add_child(retry)
+	add_child(panel)
+	_save_failed_banner = panel
+
+## 세이브 로드 결과(손상/복구)를 실행당 한 번 안내한다. 정상·첫 실행은 알릴 것이 없다.
+func _show_load_status_notice() -> void:
+	var text := _load_notice_text(GameController.last_load_status)
+	if not text.is_empty():
+		toast(text)
+
+func _load_notice_text(status: String) -> String:
+	match status:
+		LocalSave.STATUS_RECOVERED:
+			return "이전 저장이 손상돼 있어 직전 백업으로 복구했어요."
+		LocalSave.STATUS_CORRUPT:
+			return "저장 파일이 손상돼 새로 시작해요. 손상된 파일은 따로 보관했어요."
+		_:
+			return ""
 
 # ---------------------------------------------------------------- 배경/테마
 func _build_background() -> void:
