@@ -230,6 +230,17 @@ func _check_mileage_exchange() -> bool:
 		push_error("UIHarness: 교환한 코스메틱이 보유 목록에 들어가지 않았습니다 (#23)")
 		main.get_tree().quit(1)
 		return false
+	# 이미 보유한 코스메틱은 목록에서 빠져야 한다: 화면을 새로고침해 방금 교환한
+	# 항목이 더 이상 행으로 뜨지 않는지 확인한다.
+	es.call("_refresh")
+	await _settle(0.2)
+	for row: Node in list.get_children():
+		var h := row.get_child(0) as Control
+		var name_lbl := h.get_child(1) as Label
+		if name_lbl != null and name_lbl.text == target_item:
+			push_error("UIHarness: 이미 보유한 코스메틱이 교환 목록에 남아 있습니다 (#23)")
+			main.get_tree().quit(1)
+			return false
 	var persisted: Dictionary = LocalSave.load_result().get("data", {})
 	var pprofile: Dictionary = persisted.get("profile", {})
 	var saved_cosmetics: Array = pprofile.get("owned_cosmetics", [])
