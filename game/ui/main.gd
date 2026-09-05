@@ -26,6 +26,7 @@ const SCREENS := {
 	"codex": "res://game/ui/screens/codex_screen.gd",
 	"shop": "res://game/ui/screens/shop_screen.gd",
 	"gacha": "res://game/ui/screens/gacha_screen.gd",
+	"mileage_exchange": "res://game/ui/screens/mileage_exchange_screen.gd",
 	"settings": "res://game/ui/screens/settings_screen.gd",
 }
 
@@ -162,6 +163,9 @@ func _on_back() -> void:
 		"gacha":
 			AudioBus.tap()
 			goto("shop")
+		"mileage_exchange":
+			AudioBus.tap()
+			goto("gacha")
 		"activity":
 			AudioBus.tap()
 			goto("home")
