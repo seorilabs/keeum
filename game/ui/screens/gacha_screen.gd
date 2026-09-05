@@ -50,8 +50,16 @@ func enter(_data: Variant = null) -> void:
 	dv.add_child(_prob_row("일반 (파츠·소품)", "80.0%", UIKit.SAGE))
 	_pity_label = UIKit.label("", 22, UIKit.TEXT_SOFT, HORIZONTAL_ALIGNMENT_LEFT, true)
 	dv.add_child(_pity_label)
+	var mrow := UIKit.hbox(8)
 	_mileage_label = UIKit.label("", 22, UIKit.TEXT_SOFT, HORIZONTAL_ALIGNMENT_LEFT, true)
-	dv.add_child(_mileage_label)
+	mrow.add_child(_mileage_label)
+	var exchange_btn := UIKit.button("교환소")
+	exchange_btn.custom_minimum_size = Vector2(120, UIKit.TOUCH_MIN)
+	exchange_btn.pressed.connect(func() -> void:
+		AudioBus.tap()
+		router.goto("mileage_exchange"))
+	mrow.add_child(exchange_btn)
+	dv.add_child(mrow)
 	root.add_child(disc)
 	_refresh_labels()
 

@@ -115,7 +115,7 @@ func run_smoke() -> void:
 		["result", result], ["term", null], ["event", run.content.events[1]],
 		["transition", run.content.transitions[0]], ["application", null],
 		["ending", run.content.endings[1]], ["codex", null], ["shop", null],
-		["gacha", null], ["settings", null],
+		["gacha", null], ["mileage_exchange", null], ["settings", null],
 	]
 	for c: Array in cases:
 		await _visit(str(c[0]), c[1])
@@ -129,6 +129,9 @@ func run_smoke() -> void:
 		await _settle(1.6)
 		_maybe_shot("gacha_reveal")
 		print("  ✓ gacha reveal")
+
+	if not await _check_mileage_exchange():
+		return
 
 	# 활동 장면 갤러리 — 태그별 연출 캡처
 	if _shots_dir() != "":
@@ -178,6 +181,74 @@ func _check_combined_cost_gate() -> bool:
 	s.call("_refresh")
 	run.household.money = money_before
 	print("  ✓ 합산 비용 확정 차단 (#8)")
+	return true
+
+## #23 회귀: 마일리지가 부족하면 교환 버튼이 막히고, 충분하면 실제 교환이
+## 마일리지를 정확히 깎고 코스메틱을 보유 목록에 넣고 저장에 남아야 한다.
+func _check_mileage_exchange() -> bool:
+	var p: Profile = GameController.profile
+	p.mileage = 0
+	main.goto("mileage_exchange")
+	await _settle(0.4)
+	var es: UIScreen = main.current_screen()
+	if not (es is MileageExchangeScreen):
+		push_error("UIHarness: mileage_exchange 화면 진입 실패 (#23)")
+		main.get_tree().quit(1)
+		return false
+	var list: VBoxContainer = es.get("_list")
+	if list == null or list.get_child_count() == 0:
+		push_error("UIHarness: 마일리지 교환 목록이 비어 있습니다 (#23)")
+		main.get_tree().quit(1)
+		return false
+	var row0 := list.get_child(0) as Control
+	var h0 := row0.get_child(0) as Control
+	var btn0 := h0.get_child(h0.get_child_count() - 1) as Button
+	if btn0 == null or not btn0.disabled:
+		push_error("UIHarness: 마일리지 0인데 교환 버튼이 막히지 않았습니다 (#23)")
+		main.get_tree().quit(1)
+		return false
+
+	var target_item := ""
+	for item: String in (GachaScreen.POOL["special"] as Array):
+		if not p.owned_cosmetics.has(item):
+			target_item = item
+			break
+	if target_item == "":
+		print("  · 마일리지 교환: 스페셜 코스메틱을 모두 보유해 교환 실행 케이스를 건너뜁니다 (#23)")
+		return true
+
+	var cost := int(MileageExchangeScreen.EXCHANGE_COST["special"])
+	p.mileage = cost
+	var owned_before := p.owned_cosmetics.size()
+	es.call("_exchange", "special", target_item, cost)
+	await _settle(0.2)
+	if p.mileage != 0:
+		push_error("UIHarness: 교환 후 마일리지가 비용만큼 정확히 줄지 않았습니다 (#23)")
+		main.get_tree().quit(1)
+		return false
+	if not p.owned_cosmetics.has(target_item) or p.owned_cosmetics.size() != owned_before + 1:
+		push_error("UIHarness: 교환한 코스메틱이 보유 목록에 들어가지 않았습니다 (#23)")
+		main.get_tree().quit(1)
+		return false
+	# 이미 보유한 코스메틱은 목록에서 빠져야 한다: 화면을 새로고침해 방금 교환한
+	# 항목이 더 이상 행으로 뜨지 않는지 확인한다.
+	es.call("_refresh")
+	await _settle(0.2)
+	for row: Node in list.get_children():
+		var h := row.get_child(0) as Control
+		var name_lbl := h.get_child(1) as Label
+		if name_lbl != null and name_lbl.text == target_item:
+			push_error("UIHarness: 이미 보유한 코스메틱이 교환 목록에 남아 있습니다 (#23)")
+			main.get_tree().quit(1)
+			return false
+	var persisted: Dictionary = LocalSave.load_result().get("data", {})
+	var pprofile: Dictionary = persisted.get("profile", {})
+	var saved_cosmetics: Array = pprofile.get("owned_cosmetics", [])
+	if int(pprofile.get("mileage", -1)) != 0 or not saved_cosmetics.has(target_item):
+		push_error("UIHarness: 저장 왕복 후 교환 결과가 세이브에 남지 않았습니다 (#23)")
+		main.get_tree().quit(1)
+		return false
+	print("  ✓ 마일리지 교환 왕복 (#23)")
 	return true
 
 func _fake_result(act: Dictionary) -> Dictionary:
