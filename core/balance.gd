@@ -110,6 +110,41 @@ const START_PREMIUM := 60
 # --- 스트레스 → 컨디션 계수 M_컨디션 ---
 const BURNOUT_THRESHOLD := 90
 
+# --- 선천 4층 프로필: 체질·회복탄력성 보정 (DEC-014 의 「체질」·「멘탈」 층, #27) ---
+## 두 축의 기준선. **기준선에서는 모든 보정이 정확히 0/1배**라 기존 수치(AC-001~003·
+## 번아웃 90)가 그대로 남는다. 아이 생성 범위는 35~70이라 보정은 그 폭 안에서만 움직인다.
+const INNATE_BASELINE := 50
+
+## 학습 활동 1건의 기본 체력 소모. 체질이 이 부하를 덜어 준다.
+const LEARN_STAMINA_COST := 2
+## 체질 ±25 → 학습 체력 소모 ∓1. 생성 범위(35~70)에서 소모는 1~3 사이다.
+const CONSTITUTION_LOAD_SPAN := 25.0
+
+## 회복탄력성 ±50 → 정서 회복량 ±50%. 생성 범위에서 0.85~1.20배다.
+const RESILIENCE_RECOVERY_SPAN := 100.0
+
+## 회복탄력성 ±5 → 번아웃 임계 ±1. 생성 범위에서 임계는 87~94다.
+const BURNOUT_RESILIENCE_SPAN := 5.0
+
+## 번아웃 임계. 고정 90이 아니라 멘탈 층(회복탄력성)이 밀어 올리거나 끌어내린다.
+## 잘 버티는 아이는 더 늦게, 잘 무너지는 아이는 더 일찍 번아웃에 닿는다.
+static func burnout_threshold(resilience: int) -> int:
+	var shift := int(round(float(resilience - INNATE_BASELINE) / BURNOUT_RESILIENCE_SPAN))
+	return clampi(BURNOUT_THRESHOLD + shift, 80, 99)
+
+## 정서 회복량 보정. 회복탄력성이 높을수록 같은 여가에서 더 크게 돌아온다.
+## 깎이는 쪽(음수)에는 걸지 않는다 — 탄력성은 회복 축이지 피해 감소 축이 아니다.
+static func emotion_recovery(amount: int, resilience: int) -> int:
+	if amount <= 0:
+		return amount
+	var mult := 1.0 + float(resilience - INNATE_BASELINE) / RESILIENCE_RECOVERY_SPAN
+	return maxi(1, int(round(float(amount) * mult)))
+
+## 학습 활동의 체력 소모. 체질이 높을수록 같은 활동을 덜 지친 채 버틴다.
+static func learn_stamina_cost(constitution: int) -> int:
+	var relief := float(constitution - INNATE_BASELINE) / CONSTITUTION_LOAD_SPAN
+	return maxi(1, int(round(float(LEARN_STAMINA_COST) - relief)))
+
 static func condition_mult(stress: int, emotion: int, stamina: int) -> float:
 	var base: float
 	if stress < 40:

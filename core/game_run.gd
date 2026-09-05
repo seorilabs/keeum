@@ -179,6 +179,10 @@ func _apply_activity(id: String, result: Dictionary) -> void:
 			_accumulate_subject(result, subject, d)
 		child.add_stress(int(lr["stress"]))
 		result["stress"] = int(result["stress"]) + int(lr["stress"])
+		# 활동 부하(DEC-014 의 체질 층, #27). 체질이 높은 아이는 같은 수업을 덜 지친 채 버틴다.
+		var load_cost := Balance.learn_stamina_cost(child.constitution)
+		child.add_stamina(-load_cost)
+		result["stamina"] = int(result["stamina"]) - load_cost
 		for subject: String in act.get("subjects", []):
 			for axis: String in child.reveal_aptitudes_for_subject(subject):
 				result["revealed"].append(axis)
@@ -192,7 +196,8 @@ func _apply_activity(id: String, result: Dictionary) -> void:
 		_apply_leisure(act, result)
 
 func _apply_leisure(act: Dictionary, result: Dictionary) -> void:
-	var emo := int(act.get("emotion", 0))
+	# 정서 회복(DEC-014 의 멘탈 층, #27). 회복탄력성이 높은 아이는 같은 여가에서 더 크게 돌아온다.
+	var emo := Balance.emotion_recovery(int(act.get("emotion", 0)), child.resilience)
 	var sta := int(act.get("stamina", 0))
 	var tal := int(act.get("talent", 0))
 	var bon := int(act.get("bonding", 0))
@@ -236,7 +241,7 @@ func _accumulate_subject(result: Dictionary, subject: String, delta: int) -> voi
 func _build_interludes() -> void:
 	_steps.clear()
 	# 번아웃 우선. 아니면 확률로 일상/유혹 이벤트.
-	if child.stress >= Balance.BURNOUT_THRESHOLD:
+	if child.stress >= Balance.burnout_threshold(child.resilience):
 		_steps.append({"screen": "event", "event": _burnout_event()})
 	else:
 		var ev := _roll_event()

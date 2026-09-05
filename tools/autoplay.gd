@@ -10,6 +10,7 @@ func _initialize() -> void:
 	_check_growth_formula()
 	_check_cost_invariants()
 	_check_first_impressions()
+	_check_innate_axes()
 	_check_resume_unresolved_step()
 	_play_full_round()
 	if _fail == 0:
@@ -148,6 +149,81 @@ func _impression_run(card: Dictionary) -> GameRun:
 		"seed": IMPRESSION_SEED, "impression": card})
 	return run
 
+# ---------------------------------------------------------------- 선천 체질·회복탄력성 (#27)
+## DEC-014 의 「체질」·「멘탈」 층이 실제 판정에 들어가는지 고정한다. 두 축 말고는
+## 모든 조건이 같은 아이 둘을 만들어, 같은 입력에서 결과가 갈리는 것을 본다.
+## 배선을 걷어내면(보정이 상수로 돌아가면) 세 검사가 모두 실패한다.
+func _check_innate_axes() -> void:
+	print("\n[선천 4층] 체질·회복탄력성 배선 (#27)")
+
+	# 회복탄력성 → 정서 회복량. 같은 여가 카드에서 회복 폭이 달라진다.
+	var low_recovery := Balance.emotion_recovery(10, 35)
+	var high_recovery := Balance.emotion_recovery(10, 70)
+	_expect("탄력성 35 정서 회복(+10 기준)", low_recovery, 9)
+	_expect("탄력성 70 정서 회복(+10 기준)", high_recovery, 12)
+	_expect("탄력성이 다르면 회복이 다르다", 1 if low_recovery != high_recovery else 0, 1)
+	# 기준선에서는 보정이 없다 — 기존 수치가 그대로 남는 근거다.
+	_expect("탄력성 50은 보정 없음", Balance.emotion_recovery(10, Balance.INNATE_BASELINE), 10)
+	# 깎이는 쪽은 건드리지 않는다.
+	_expect("정서 감소는 탄력성과 무관", Balance.emotion_recovery(-8, 70), -8)
+
+	# 회복탄력성 → 번아웃 임계. 고정 90이 아니다.
+	var low_threshold := Balance.burnout_threshold(35)
+	var high_threshold := Balance.burnout_threshold(70)
+	_expect("탄력성 35 번아웃 임계", low_threshold, 87)
+	_expect("탄력성 70 번아웃 임계", high_threshold, 94)
+	_expect("임계가 고정 90이 아니다",
+		1 if low_threshold != Balance.BURNOUT_THRESHOLD or high_threshold != Balance.BURNOUT_THRESHOLD else 0, 1)
+	_expect("탄력성 50은 기존 임계 그대로",
+		Balance.burnout_threshold(Balance.INNATE_BASELINE), Balance.BURNOUT_THRESHOLD)
+
+	# 체질 → 학습 활동 부하. 같은 수업에서 체력 소모가 갈린다.
+	var weak_cost := Balance.learn_stamina_cost(35)
+	var strong_cost := Balance.learn_stamina_cost(70)
+	_expect("체질 35 학습 체력 소모", weak_cost, 3)
+	_expect("체질 70 학습 체력 소모", strong_cost, 1)
+	_expect("체질이 다르면 부하가 다르다", 1 if weak_cost != strong_cost else 0, 1)
+	_expect("체질 50은 기본 부하", Balance.learn_stamina_cost(Balance.INNATE_BASELINE),
+		Balance.LEARN_STAMINA_COST)
+
+	# 규칙을 통과한 실제 턴에서도 갈리는지 본다 — 상수만 맞고 배선이 없으면 여기서 잡힌다.
+	var content := ContentDB.new()
+	if not content.load_all():
+		print("  ✗ 콘텐츠 로드 실패"); _fail += 1; return
+
+	var learn_id := ""
+	for act: Dictionary in content.activities:
+		if str(act.get("axis", "")) == "learn" and int(act.get("cost", 0)) == 0:
+			learn_id = str(act.get("id", ""))
+			break
+	if learn_id == "":
+		print("  ✗ 무료 학습 활동을 찾지 못했습니다(사전 조건)"); _fail += 1
+	else:
+		var weak_run := _innate_run(content, 35, 50)
+		var strong_run := _innate_run(content, 70, 50)
+		var weak_stamina := int(weak_run.resolve_turn(learn_id, "")["stamina"])
+		var strong_stamina := int(strong_run.resolve_turn(learn_id, "")["stamina"])
+		_expect("같은 학습 활동, 체질이 낮으면 더 지친다",
+			1 if weak_stamina < strong_stamina else 0, 1)
+
+	var dull_run := _innate_run(content, 50, 35)
+	var bright_run := _innate_run(content, 50, 70)
+	_expect("같은 아이 조건, 탄력성이 다르면 번아웃 임계가 다르다",
+		1 if Balance.burnout_threshold(dull_run.child.resilience)
+			!= Balance.burnout_threshold(bright_run.child.resilience) else 0, 1)
+
+## 체질·회복탄력성만 지정한 실행. 두 축 말고는 같은 seed·같은 초기 상태다.
+func _innate_run(content: ContentDB, constitution: int, resilience: int) -> GameRun:
+	var run := GameRun.new()
+	run.setup(content)
+	run.start_new({"name": "선천", "gender": "neutral", "generation": 1, "seed": 20260903})
+	run.child.constitution = constitution
+	run.child.resilience = resilience
+	run.child.stamina = 60
+	run.child.emotion = 60
+	run.child.stress = 30
+	return run
+
 # ---------------------------------------------------------------- 재개 (#16)
 ## 이벤트·전환기 화면을 띄운 채(아직 선택 미해결) 저장→복원하면 같은 항목으로
 ## 돌아가고, 선택 적용 후 저장→복원하면 재적용되지 않아야 한다.
@@ -159,7 +235,8 @@ func _check_resume_unresolved_step() -> void:
 
 	# 이벤트: 번아웃 조건(스트레스 임계 이상)은 RNG 와 무관하게 항상 발생한다.
 	var run := _fresh_run(content)
-	run.child.stress = Balance.BURNOUT_THRESHOLD
+	# 임계는 아이의 회복탄력성에 따라 달라진다(#27). 이 아이의 임계로 맞춰야 유도가 확실하다.
+	run.child.stress = Balance.burnout_threshold(run.child.resilience)
 	run.resolve_turn("", "")
 	if not run.has_steps():
 		print("  ✗ 번아웃 이벤트 유도 실패(사전 조건)"); _fail += 1
