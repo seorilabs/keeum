@@ -133,6 +133,9 @@ func run_smoke() -> void:
 	if not await _check_mileage_exchange():
 		return
 
+	if not await _check_shop_pricing_gate():
+		return
+
 	# 활동 장면 갤러리 — 태그별 연출 캡처
 	if _shots_dir() != "":
 		GameController.run = run  # 엔딩 케이스에서 회차가 종료됐으므로 복원
@@ -249,6 +252,45 @@ func _check_mileage_exchange() -> bool:
 		main.get_tree().quit(1)
 		return false
 	print("  ✓ 마일리지 교환 왕복 (#23)")
+	return true
+
+## #31 회귀: 결제 어댑터가 상품을 돌려주지 않는 기본(미연동) 상태에서는 확정 가격과
+## 구매 버튼이 하나도 없어야 하고 상품 이름·혜택 설명은 그대로 보여야 한다. 어댑터가
+## 상품을 돌려주면 그 가격이 구매 버튼에 그대로 표시돼야 한다.
+func _check_shop_pricing_gate() -> bool:
+	ShopCatalog.reset_test_priced_offers()
+	main.goto("shop")
+	await _settle(0.4)
+	var s: UIScreen = main.current_screen()
+	if not (s is ShopScreen):
+		push_error("UIHarness: shop 화면 진입 실패 (#31)")
+		main.get_tree().quit(1)
+		return false
+	var names: Dictionary = s.get("_offer_name_labels")
+	var buttons: Dictionary = s.get("_priced_buy_buttons")
+	if names.size() != ShopScreen.OFFERINGS.size():
+		push_error("UIHarness: 미연동 상태에서 상품 이름·혜택 설명이 전부 보이지 않습니다 (#31)")
+		main.get_tree().quit(1)
+		return false
+	if not buttons.is_empty():
+		push_error("UIHarness: 결제 어댑터가 상품을 돌려주지 않는데 구매 버튼이 보입니다 (#31)")
+		main.get_tree().quit(1)
+		return false
+	print("  ✓ 결제 미연동 상태: 가격·구매 버튼 없음, 상품 이름·설명 유지 (#31)")
+
+	ShopCatalog.set_test_priced_offers([{"id": "remove_ads", "price": "₩9,900"}])
+	main.goto("shop")
+	await _settle(0.4)
+	s = main.current_screen()
+	buttons = s.get("_priced_buy_buttons")
+	var buy: Button = buttons.get("remove_ads")
+	if buy == null or buy.text != "₩9,900" or (buttons as Dictionary).size() != 1:
+		push_error("UIHarness: 어댑터가 돌려준 가격이 구매 버튼에 그대로 표시되지 않습니다 (#31)")
+		main.get_tree().quit(1)
+		ShopCatalog.reset_test_priced_offers()
+		return false
+	print("  ✓ 결제 연동 스텁: 어댑터 가격이 그대로 표시됨 (#31)")
+	ShopCatalog.reset_test_priced_offers()
 	return true
 
 func _fake_result(act: Dictionary) -> Dictionary:
