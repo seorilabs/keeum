@@ -24,5 +24,7 @@ jobs:
       runs_on: seorilabs-rpi-arm64
       project_dir: "."
       check_command: |
+        node scripts/check_platform_sdk.mjs
+        node --test scripts/tests/*.test.mjs
         bash scripts/check_fleet_source_contract.sh
         bash scripts/check_keeum.sh
