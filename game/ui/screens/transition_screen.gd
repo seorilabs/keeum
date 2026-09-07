@@ -67,10 +67,13 @@ func enter(data: Variant = null) -> void:
 	v.add_child(_result_label)
 	body.add_child(panel)
 
-	_ad_btn = UIKit.icon_button("film", "진심이 닿는 시간 (+20%p)")
-	_ad_btn.disabled = not _run.can_use_ad_boost(_transition)
-	_ad_btn.pressed.connect(_toggle_ad)
-	root.add_child(_ad_btn)
+	# 어댑터 미연동이거나 세션 8회/일일 18회 캡에 닿았으면 부스트 버튼 자체를
+	# 만들지 않는다(#34) — ShopCatalog(#31)와 같은 규칙.
+	if AdGateway.can_open(GameController.profile):
+		_ad_btn = UIKit.icon_button("film", "진심이 닿는 시간 (+20%p)")
+		_ad_btn.disabled = not _run.can_use_ad_boost(_transition)
+		_ad_btn.pressed.connect(_toggle_ad)
+		root.add_child(_ad_btn)
 
 	_next_btn = UIKit.button("다음", true)
 	_next_btn.visible = false
@@ -140,12 +143,16 @@ func _update_chance() -> void:
 	_last_pct = pct
 
 func _resolve(index: int) -> void:
-	# 상태 변경·저장은 연출 전에 동기 완료(중단 안전).
+	# 상태 변경·저장은 연출 전에 동기 완료(중단 안전). 부스트를 실제로 쓴 순간에만
+	# 캡을 charge한다 — 토글만 하고 선택지를 누르지 않은 시청은 캡에 들지 않는다.
+	if _use_ad:
+		AdGateway.record_shown(GameController.profile)
 	var out := _run.resolve_transition(_transition, index, _use_ad)
 	GameController.track("raise_event_choice", {"event_id": _transition.get("gate", ""), "choice": index})
 	for c: Node in _option_box.get_children():
 		c.visible = false
-	_ad_btn.visible = false
+	if _ad_btn != null:
+		_ad_btn.visible = false
 	_chance_label.visible = false
 	GameController.save_game()
 	if reduce_motion():

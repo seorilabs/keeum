@@ -35,13 +35,15 @@ func enter(_data: Variant = null) -> void:
 	body.add_child(_section_title("슬롯 B · 여가", UIKit.SAGE))
 	_build_slot(body, "B", _b_cards, _on_pick_b)
 
-	# 보너스 슬롯(보상형 광고 — 유저 주도)
-	body.add_child(UIKit.spacer(6))
-	var ad_btn := UIKit.icon_button("film", "보너스 슬롯 열기 (광고 시청)")
-	ad_btn.pressed.connect(_open_bonus)
-	body.add_child(ad_btn)
-	_bonus_container = UIKit.vbox(10)
-	body.add_child(_bonus_container)
+	# 보너스 슬롯(보상형 광고 — 유저 주도). 어댑터 미연동이거나 세션 8회/일일 18회
+	# 캡에 닿았으면 버튼도 "광고 시청 완료" 문구도 만들지 않는다(#34).
+	if AdGateway.can_open(GameController.profile):
+		body.add_child(UIKit.spacer(6))
+		var ad_btn := UIKit.icon_button("film", "보너스 슬롯 열기 (광고 시청)")
+		ad_btn.pressed.connect(_open_bonus)
+		body.add_child(ad_btn)
+		_bonus_container = UIKit.vbox(10)
+		body.add_child(_bonus_container)
 
 	# 하단 고정 행동
 	var repeat := UIKit.button("지난 달 유지")
@@ -164,6 +166,8 @@ func _open_bonus() -> void:
 	if _bonus_open:
 		return
 	_bonus_open = true
+	AdGateway.record_shown(GameController.profile)
+	GameController.save_game()
 	AudioBus.chime()
 	router.toast("광고 시청 완료 — 보너스 슬롯이 열렸어요")
 	_bonus_container.add_child(_section_title("보너스 슬롯 · 자유", UIKit.CORAL))

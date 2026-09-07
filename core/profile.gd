@@ -8,6 +8,8 @@ var mileage: int = 0                      # 가챠 마일리지
 var gacha_pity: int = 0                   # 천장 카운트(40회)
 var ad_removed: bool = false
 var total_runs: int = 0
+var ad_daily_key: String = ""  # 보상형 광고 일일 캡(#34) 기준일. AdGateway 소유
+var ad_daily_count: int = 0    # 위 기준일의 보상형 광고 시청 횟수
 
 # 도감: 수집한 엔딩 id 집합과 회차 기록.
 var collected_endings: Array = []         # Array[String]
@@ -36,6 +38,7 @@ func to_dict() -> Dictionary:
 	return {
 		"premium": premium, "mileage": mileage, "gacha_pity": gacha_pity,
 		"ad_removed": ad_removed, "total_runs": total_runs,
+		"ad_daily_key": ad_daily_key, "ad_daily_count": ad_daily_count,
 		"collected_endings": collected_endings.duplicate(),
 		"run_records": run_records.duplicate(true),
 		"owned_cosmetics": owned_cosmetics.duplicate(),
@@ -49,6 +52,8 @@ static func from_dict(d: Dictionary) -> Profile:
 	p.gacha_pity = int(d.get("gacha_pity", 0))
 	p.ad_removed = bool(d.get("ad_removed", false))
 	p.total_runs = int(d.get("total_runs", 0))
+	p.ad_daily_key = String(d.get("ad_daily_key", ""))
+	p.ad_daily_count = int(d.get("ad_daily_count", 0))
 	p.collected_endings = d.get("collected_endings", [])
 	p.run_records = d.get("run_records", [])
 	p.owned_cosmetics = d.get("owned_cosmetics", [])
