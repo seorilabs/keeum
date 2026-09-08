@@ -1,7 +1,7 @@
 extends Node
 ## 사용자 설정 영속화 오토로드. 게임 세이브(LocalSave)와 분리된 user://keeum_settings.cfg 를 쓰며,
 ## 데이터 초기화(reset_all)에도 접근성·오디오 설정은 유지된다(03 문서 접근성 계약).
-## 기동 시 FX(모션·햅틱)·AudioBus(음소거·볼륨)에 값을 주입한다.
+## 기동 시 FX(모션·햅틱)·AudioBus(음소거·볼륨)·UIKit(글자 크기)에 값을 주입한다.
 
 const PATH := "user://keeum_settings.cfg"
 const SECTION := "settings"
@@ -11,6 +11,7 @@ var reduce_motion := false
 var haptic_level := 1     # 0=끔 1=보통 2=강
 var bgm_volume := 0.8     # 0~1 선형
 var sfx_volume := 0.9
+var font_scale_tier := 0  # 0=보통 1=크게 2=아주 크게 (#35, 03 문서 접근성 계약)
 
 
 func _ready() -> void:
@@ -30,6 +31,7 @@ func _apply() -> void:
 	AudioBus.muted = muted
 	if AudioBus.has_method("apply_volumes"):
 		AudioBus.apply_volumes(bgm_volume, sfx_volume)
+	UIKit.set_font_scale_tier(font_scale_tier)
 
 
 func _load() -> void:
@@ -41,6 +43,7 @@ func _load() -> void:
 	haptic_level = int(cfg.get_value(SECTION, "haptic_level", haptic_level))
 	bgm_volume = clampf(float(cfg.get_value(SECTION, "bgm_volume", bgm_volume)), 0.0, 1.0)
 	sfx_volume = clampf(float(cfg.get_value(SECTION, "sfx_volume", sfx_volume)), 0.0, 1.0)
+	font_scale_tier = clampi(int(cfg.get_value(SECTION, "font_scale_tier", font_scale_tier)), 0, 2)
 
 
 func _save() -> void:
@@ -50,4 +53,5 @@ func _save() -> void:
 	cfg.set_value(SECTION, "haptic_level", haptic_level)
 	cfg.set_value(SECTION, "bgm_volume", bgm_volume)
 	cfg.set_value(SECTION, "sfx_volume", sfx_volume)
+	cfg.set_value(SECTION, "font_scale_tier", font_scale_tier)
 	cfg.save(PATH)

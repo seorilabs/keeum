@@ -139,6 +139,9 @@ func run_smoke() -> void:
 	if not await _check_ad_gateway_gate(run):
 		return
 
+	if not await _check_font_scale_setting():
+		return
+
 	# 활동 장면 갤러리 — 태그별 연출 캡처
 	if _shots_dir() != "":
 		GameController.run = run  # 엔딩 케이스에서 회차가 종료됐으므로 복원
@@ -378,6 +381,71 @@ func _check_ad_gateway_gate(run: GameRun) -> bool:
 	profile.ad_daily_key = saved_key
 	profile.ad_daily_count = saved_count
 	return true
+
+## [#35] 글자 크기 설정: 고르면 UIKit.sz() 배율이 실제로 바뀌고, 설정 화면이 새 크기로
+## 다시 서며, 기본값으로 되돌리면 원래 배율로 복귀하고, 데이터 초기화 뒤에도 값이
+## 남는다(접근성 설정 보존 계약).
+func _check_font_scale_setting() -> bool:
+	var baseline_sz100 := UIKit.sz(100)
+	var baseline_tier := Settings.font_scale_tier
+
+	main.goto("settings")
+	await _settle(0.4)
+	var s: UIScreen = main.current_screen()
+	if not (s is SettingsScreen):
+		push_error("UIHarness: settings 화면 진입 실패 (#35)")
+		main.get_tree().quit(1)
+		return false
+	var tier2_btn := main.find_child("FontScaleTier2", true, false) as Button
+	if tier2_btn == null:
+		push_error("UIHarness: 글자 크기(아주 크게) 버튼이 없습니다 (#35)")
+		main.get_tree().quit(1)
+		return false
+	tier2_btn.pressed.emit()
+	await _settle(0.4)
+
+	if Settings.font_scale_tier != 2:
+		push_error("UIHarness: 글자 크기 선택이 Settings 에 반영되지 않았습니다 (#35)")
+		main.get_tree().quit(1)
+		return false
+	if UIKit.sz(100) == baseline_sz100:
+		push_error("UIHarness: 글자 크기를 바꿔도 UIKit.sz() 배율이 그대로입니다 (#35)")
+		main.get_tree().quit(1)
+		return false
+	s = main.current_screen()
+	if not (s is SettingsScreen):
+		push_error("UIHarness: 글자 크기 선택 뒤 설정 화면이 다시 서지 않았습니다 (#35)")
+		main.get_tree().quit(1)
+		return false
+	var reselected := main.find_child("FontScaleTier2", true, false) as Button
+	if reselected == null or reselected == tier2_btn:
+		push_error("UIHarness: 글자 크기 선택 뒤 설정 화면이 새 인스턴스로 다시 서지 않았습니다 (#35)")
+		main.get_tree().quit(1)
+		return false
+	print("  ✓ 글자 크기 선택이 배율에 반영되고 화면이 다시 선다 (#35)")
+
+	GameController.reset_all()
+	if Settings.font_scale_tier != 2:
+		push_error("UIHarness: 데이터 초기화 뒤 글자 크기 설정이 사라졌습니다 (#35)")
+		main.get_tree().quit(1)
+		return false
+	print("  ✓ 데이터 초기화 뒤에도 글자 크기 설정이 유지된다 (#35)")
+
+	# 기본값 복귀: 배율이 원래 값으로 정확히 되돌아온다.
+	var tier0_btn := main.find_child("FontScaleTier0", true, false) as Button
+	if tier0_btn == null:
+		push_error("UIHarness: 글자 크기(보통) 버튼이 없습니다 (#35)")
+		main.get_tree().quit(1)
+		return false
+	tier0_btn.pressed.emit()
+	await _settle(0.4)
+	if Settings.font_scale_tier != baseline_tier or UIKit.sz(100) != baseline_sz100:
+		push_error("UIHarness: 글자 크기를 기본으로 되돌려도 원래 배율로 복귀하지 않습니다 (#35)")
+		main.get_tree().quit(1)
+		return false
+	print("  ✓ 기본값 복귀 시 원래 배율로 되돌아온다 (#35)")
+	return true
+
 
 func _fake_result(act: Dictionary) -> Dictionary:
 	return {

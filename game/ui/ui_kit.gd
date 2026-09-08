@@ -23,10 +23,18 @@ const TOUCH_MIN := 60
 # 번들 폰트 (main._apply_theme 에서 주입). 본문=Gothic A1 ExtraBold, 제목=Black Han Sans.
 static var body_font: Font = null
 static var title_font: Font = null
-const FONT_SCALE := 1.18
+
+## 글자 크기 설정(#35, 03 문서 접근성 계약). 0=보통(기존 배율 그대로) 1=크게 2=아주 크게.
+## Settings._apply() 가 기동 시·값 변경 시 주입한다. 가로 폭 기준값(패널 폭 등)은
+## 이 배율을 타지 않는다 — sz() 는 폰트·아이콘 크기에만 쓰인다(jomul 접근성 설정 교훈).
+const FONT_SCALE_TIERS := [1.18, 1.35, 1.5]
+static var _font_scale := FONT_SCALE_TIERS[0]
+
+static func set_font_scale_tier(tier: int) -> void:
+	_font_scale = FONT_SCALE_TIERS[clampi(tier, 0, FONT_SCALE_TIERS.size() - 1)]
 
 static func sz(size: int) -> int:
-	return int(round(float(size) * FONT_SCALE))
+	return int(round(float(size) * _font_scale))
 
 ## 기기 safe area(노치·제스처바)를 캔버스 좌표(폭 1080 기준)로 환산. 데스크톱·웹은 0.
 static func safe_insets() -> Dictionary:

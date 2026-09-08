@@ -25,6 +25,8 @@ func enter(_data: Variant = null) -> void:
 
 	body.add_child(_haptic_row())
 
+	body.add_child(_font_scale_row())
+
 	body.add_child(_toggle("이벤트 텍스트 낭독 (TTS)", false, func(on: bool) -> void:
 		router.toast("TTS는 실기기 빌드에서 지원돼요" if on else "")))
 
@@ -80,6 +82,29 @@ func _haptic_row() -> Control:
 				_restyle_choice(btns[l2] as Button, l2 == level))
 	v.add_child(row)
 	return panel
+
+## 글자 크기 3택(보통·크게·아주 크게) — 03 문서 접근성 계약(#35). 폰트 크기는 생성 시점에
+## 굳으므로 다른 버튼처럼 제자리 restyle만으로는 부족하다 — 고른 즉시 이 화면을 다시 세운다
+## (jomul 접근성 설정 교훈: 토글을 누른 자리에서 화면을 다시 세워야 한다).
+func _font_scale_row() -> Control:
+	var panel := UIKit.panel(UIKit.CARD, 16)
+	var v := UIKit.vbox(8)
+	panel.add_child(v)
+	v.add_child(UIKit.label("글자 크기", 26, UIKit.TEXT))
+	var row := UIKit.hbox(8)
+	for pair: Array in [[0, "보통"], [1, "크게"], [2, "아주 크게"]]:
+		var tier := int(pair[0])
+		var b := UIKit.button(str(pair[1]), Settings.font_scale_tier == tier)
+		b.name = "FontScaleTier%d" % tier
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(b)
+		b.pressed.connect(func() -> void:
+			Settings.set_value("font_scale_tier", tier)
+			FX.haptic(2)
+			router.goto("settings"))
+	v.add_child(row)
+	return panel
+
 
 func _restyle_choice(b: Button, selected: bool) -> void:
 	var bg := UIKit.CORAL if selected else UIKit.CARD
