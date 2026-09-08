@@ -1,6 +1,7 @@
 AGENTS.local.md
 AGENT.local.md
 .DS_Store
+/node_modules/
 
 # Godot local state and generated outputs
 .godot/

@@ -6,11 +6,14 @@ smoke_scene=""
 godot_bin="${GODOT_BIN:-godot}"
 log_dir="${GODOT_QUALITY_GATE_LOG_DIR:-}"
 run_import=1
+isolate_user_data=0
+isolation_cache_dir="${KEEUM_ISOLATION_CACHE_DIR:-}"
+owns_isolation_cache=0
 
 usage() {
   cat <<'USAGE'
 Usage:
-  godot_quality_gate.sh [--project PATH] [--smoke-scene RES://SCENE] [--godot-bin PATH] [--skip-import]
+  godot_quality_gate.sh [--project PATH] [--smoke-scene RES://SCENE] [--godot-bin PATH] [--skip-import] [--isolate-user-data]
 
 Checks:
   1. Runs: godot --headless --path <project> --import --quit
@@ -39,6 +42,10 @@ while [ "$#" -gt 0 ]; do
       run_import=0
       shift
       ;;
+    --isolate-user-data)
+      isolate_user_data=1
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -50,6 +57,22 @@ while [ "$#" -gt 0 ]; do
       ;;
   esac
 done
+
+if [[ "$isolate_user_data" -eq 1 && -z "$isolation_cache_dir" ]]; then
+  isolation_cache_dir="$(mktemp -d "${TMPDIR:-/tmp}/keeum-isolation-cache.XXXXXX")"
+  owns_isolation_cache=1
+fi
+if [[ -n "$isolation_cache_dir" ]]; then
+  export KEEUM_ISOLATION_CACHE_DIR="$isolation_cache_dir"
+fi
+
+cleanup() {
+  if [[ "$owns_isolation_cache" -eq 1 && -n "${isolation_cache_dir:-}" \
+      && "$isolation_cache_dir" == "${TMPDIR:-/tmp}/keeum-isolation-cache."* ]]; then
+    rm -rf -- "$isolation_cache_dir"
+  fi
+}
+trap cleanup EXIT
 
 if [ -z "${log_dir}" ]; then
   log_dir="$(mktemp -d)"
@@ -64,7 +87,13 @@ run_godot_check() {
 
   echo "[godot-quality] running ${label}: $*" >&2
   set +e
-  "$@" 2>&1 | tee "${log_file}"
+  if [[ "$isolate_user_data" -eq 1 ]]; then
+    local command_bin="$1"
+    shift
+    GODOT_BIN="$command_bin" "$project/scripts/run_godot_isolated.sh" "quality-$label" -- "$@" 2>&1 | tee "${log_file}"
+  else
+    "$@" 2>&1 | tee "${log_file}"
+  fi
   local status="${PIPESTATUS[0]}"
   set -e
 

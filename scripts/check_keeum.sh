@@ -3,8 +3,11 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 godot_bin="${GODOT_BIN:-godot}"
+export GODOT_BIN="$godot_bin"
 log_dir="${KEEUM_CHECK_LOG_DIR:-}"
 owns_log_dir=0
+isolation_cache_dir="${KEEUM_ISOLATION_CACHE_DIR:-}"
+owns_isolation_cache=0
 
 if [[ -z "$log_dir" ]]; then
   log_dir="$(mktemp -d "${TMPDIR:-/tmp}/keeum-check.XXXXXX")"
@@ -13,20 +16,19 @@ else
   mkdir -p "$log_dir"
 fi
 
-# 실행 전용 격리 저장 공간(#17). Godot 의 user:// 는 프로젝트 이름 기준으로 공유되므로
-# checkout 을 분리해도 같은 컴퓨터의 실제 플레이 저장을 가리킨다. 매 실행마다 고유
-# 디렉터리를 만들어 XDG_DATA_HOME 으로 넘기면 이 실행의 user:// 가 통째로 여기로
-# 옮겨간다 — 실제 저장 경로·다른 동시 실행과 절대 겹치지 않는다.
-user_dir="$(mktemp -d "${TMPDIR:-/tmp}/keeum-check-userdir.XXXXXX")"
-export KEEUM_TEST_USER_DIR="$user_dir"
-export XDG_DATA_HOME="$user_dir"
+if [[ -z "$isolation_cache_dir" ]]; then
+  isolation_cache_dir="$(mktemp -d "${TMPDIR:-/tmp}/keeum-isolation-cache.XXXXXX")"
+  owns_isolation_cache=1
+fi
+export KEEUM_ISOLATION_CACHE_DIR="$isolation_cache_dir"
 
 cleanup() {
   if [[ "$owns_log_dir" -eq 1 && -n "${log_dir:-}" && "$log_dir" != "/" ]]; then
     rm -rf -- "$log_dir"
   fi
-  if [[ -n "${user_dir:-}" && "$user_dir" != "/" ]]; then
-    rm -rf -- "$user_dir"
+  if [[ "$owns_isolation_cache" -eq 1 && -n "${isolation_cache_dir:-}" \
+      && "$isolation_cache_dir" == "${TMPDIR:-/tmp}/keeum-isolation-cache."* ]]; then
+    rm -rf -- "$isolation_cache_dir"
   fi
 }
 trap cleanup EXIT
@@ -62,21 +64,24 @@ run_godot_check() {
 }
 
 GODOT_QUALITY_GATE_LOG_DIR="$log_dir/quality" \
-  bash "$repo_root/scripts/godot_quality_gate.sh" --project "$repo_root"
+  bash "$repo_root/scripts/godot_quality_gate.sh" --project "$repo_root" --isolate-user-data
 
 run_godot_check \
   "save-probe" \
   "세이브 검증 통과" \
-  "$godot_bin" --headless --path "$repo_root" --script res://tools/save_probe.gd
+  "$repo_root/scripts/run_godot_isolated.sh" "save-probe" -- \
+    --headless --script res://tools/save_probe.gd
 
 run_godot_check \
   "autoplay" \
   "모든 검증 통과" \
-  "$godot_bin" --headless --path "$repo_root" --script res://tools/autoplay.gd
+  "$repo_root/scripts/run_godot_isolated.sh" "autoplay" -- \
+    --headless --script res://tools/autoplay.gd
 
 run_godot_check \
   "ui-smoke" \
   "UI 스모크 완료" \
-  "$godot_bin" --headless --path "$repo_root" -- --ui-smoke
+  "$repo_root/scripts/run_godot_isolated.sh" "ui-smoke" -- \
+    --headless -- --ui-smoke
 
 echo "[keeum-check] all checks passed"
