@@ -143,7 +143,82 @@ func _run_scenarios(content: ContentDB) -> void:
 	_expect(
 		"손상 안내 문구 존재", not main_probe._load_notice_text(LocalSave.STATUS_CORRUPT).is_empty()
 	)
+	_expect(
+		"상위 버전 안내 문구 존재",
+		not main_probe._load_notice_text(LocalSave.STATUS_FUTURE_VERSION).is_empty()
+	)
 	main_probe.free()
+
+	# 10) 스키마 버전 판독(#45): 무버전(v0)·현재 버전·상위 버전 세 픽스처 상태를 각각 검증한다.
+	# 10-1) 무버전 픽스처: schema_version 키가 아예 없는 실제 구버전 세이브 모양.
+	#       도감·프리미엄·마일리지·가챠 천장·회차 기록이 값 손실 없이 최신 구조로 올라와야 한다.
+	_cleanup_files()
+	var v0_blob := {
+		"profile": {
+			"premium": 777, "mileage": 12, "gacha_pity": 5,
+			"ad_removed": true, "total_runs": 2,
+			"ad_daily_key": "2026-09-01", "ad_daily_count": 1,
+			"collected_endings": ["hanul_happy", "stable_calm"],
+			"run_records": [{"ending_id": "hanul_happy", "turns": 20}],
+			"owned_cosmetics": ["cap_basic"],
+			"equipped": {"head": "cap_basic"},
+		},
+		"run": {},
+	}
+	_write_raw(LocalSave.SAVE_PATH, JSON.stringify(v0_blob, "\t"))
+	var v0_controller := _fresh_controller()
+	_expect("무버전 픽스처 status=ok", v0_controller.last_load_status == LocalSave.STATUS_OK)
+	_expect("무버전 도감 손실 없음", v0_controller.profile.collected_endings == ["hanul_happy", "stable_calm"])
+	_expect("무버전 프리미엄 손실 없음", v0_controller.profile.premium == 777)
+	_expect("무버전 마일리지 손실 없음", v0_controller.profile.mileage == 12)
+	_expect("무버전 가챠 천장 손실 없음", v0_controller.profile.gacha_pity == 5)
+	_expect("무버전 회차 기록 손실 없음", v0_controller.profile.run_records.size() == 1)
+	_expect("무버전 코스메틱 손실 없음", v0_controller.profile.owned_cosmetics == ["cap_basic"])
+	_expect(
+		"무버전 로드 후 최신 스키마로 승격 저장",
+		int(LocalSave.load_data().get("schema_version", -1)) == SaveSchema.CURRENT_VERSION
+	)
+	v0_controller.free()
+
+	# 10-2) 현재 버전 픽스처: 그대로 사용한다.
+	_cleanup_files()
+	var current_blob := {
+		"schema_version": SaveSchema.CURRENT_VERSION, "profile": Profile.new().to_dict(), "run": {},
+	}
+	_write_raw(LocalSave.SAVE_PATH, JSON.stringify(current_blob, "\t"))
+	var current_controller := _fresh_controller()
+	_expect("현재 버전 픽스처 status=ok", current_controller.last_load_status == LocalSave.STATUS_OK)
+	_expect("현재 버전 프로필 정상 로드", current_controller.profile.premium == Balance.START_PREMIUM)
+	current_controller.free()
+
+	# 10-3) 상위 버전 픽스처: 이 코드가 아는 것보다 높은 버전 — 기본값으로 덮지 않고
+	#       기존 파일을 보존한 채 로드를 거부해야 한다.
+	_cleanup_files()
+	var future_blob := {
+		"schema_version": SaveSchema.CURRENT_VERSION + 999,
+		"profile": {"premium": 55555, "collected_endings": ["future_only_ending"]},
+		"run": {},
+	}
+	var future_text := JSON.stringify(future_blob, "\t")
+	_write_raw(LocalSave.SAVE_PATH, future_text)
+	var future_controller := _fresh_controller()
+	_expect("상위 버전 status=future_version", future_controller.last_load_status == LocalSave.STATUS_FUTURE_VERSION)
+	_expect(
+		"상위 버전은 기본값 프로필로 시작(미래 데이터로 덮지 않음)",
+		future_controller.profile.collected_endings.is_empty())
+	_expect("상위 버전은 회차 없음", future_controller.run == null)
+	_expect(
+		"상위 버전 파일 원본 그대로 보존",
+		FileAccess.get_file_as_string(LocalSave.SAVE_PATH) == future_text)
+	future_controller.free()
+
+	# 10-4) keeum 세이브가 아닌 임의 Dictionary JSON 은 OK 로 판정되지 않는다.
+	_cleanup_files()
+	_write_raw(LocalSave.SAVE_PATH, JSON.stringify({"foo": "bar", "unrelated": 1}, "\t"))
+	_expect(
+		"임의 Dictionary 는 OK 가 아님",
+		String(LocalSave.load_result()["status"]) != LocalSave.STATUS_OK)
+	_cleanup_files()
 
 
 func _fresh_controller() -> Node:

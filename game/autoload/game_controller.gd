@@ -30,10 +30,23 @@ func _ready() -> void:
 
 ## 세이브를 status 와 함께 한 번만 읽어 프로필·회차를 복원한다(#12).
 ## 손상 세이브는 격리해 증거로 남기고, 백업 복구본은 본 파일로 승격한다.
+## #45: 로드 전에 blob 최상위 스키마 버전을 먼저 판정한다 — 이 코드가 아는 것보다
+## 높은 버전은 기본값으로 조용히 덮지 않고 기존 파일을 보존한 채 로드를 거부한다.
 func restore_from_disk() -> void:
 	var result := LocalSave.load_result()
 	last_load_status = String(result.get("status", LocalSave.STATUS_EMPTY))
 	var data: Dictionary = result.get("data", {})
+	var needs_restamp := false
+	if last_load_status == LocalSave.STATUS_OK or last_load_status == LocalSave.STATUS_RECOVERED:
+		match SaveSchema.classify(data):
+			SaveSchema.RESULT_REJECT:
+				last_load_status = LocalSave.STATUS_FUTURE_VERSION
+				profile = Profile.new()
+				run = null
+				push_warning("GameController: 세이브가 이 코드가 아는 것보다 높은 스키마 버전이라 기존 파일을 보존하고 로드를 거부한다")
+				return
+			SaveSchema.RESULT_MIGRATE:
+				needs_restamp = true
 	_load_profile(data)
 	_load_run(data)
 	match last_load_status:
@@ -43,6 +56,10 @@ func restore_from_disk() -> void:
 		LocalSave.STATUS_RECOVERED:
 			push_warning("GameController: 백업 세대에서 세이브 복구")
 			_persist()
+		_:
+			if needs_restamp:
+				push_warning("GameController: 구버전 세이브를 최신 스키마로 승격")
+				_persist()
 
 # ---------------------------------------------------------------- 프로필
 func _load_profile(data: Dictionary) -> void:
@@ -100,7 +117,7 @@ func save_game() -> bool:
 	return _persist()
 
 func _persist() -> bool:
-	var blob := {"profile": profile.to_dict()}
+	var blob := {"schema_version": SaveSchema.CURRENT_VERSION, "profile": profile.to_dict()}
 	if run != null:
 		blob["run"] = run.to_dict()
 	else:
@@ -126,7 +143,7 @@ func equip_cosmetic(slot: String, item: String) -> void:
 func reset_all() -> void:
 	profile = Profile.new()
 	run = null
-	_write({"profile": profile.to_dict(), "run": {}})
+	_write({"schema_version": SaveSchema.CURRENT_VERSION, "profile": profile.to_dict(), "run": {}})
 	profile_changed.emit()
 
 # ---------------------------------------------------------------- 분석(스텁)
