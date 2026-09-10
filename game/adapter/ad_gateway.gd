@@ -37,16 +37,24 @@ static func can_open(profile: Profile) -> bool:
 ## 실제로 광고 시청이 끝나 보상을 지급하기 직전에 호출한다. 세션 카운트를 올리고
 ## profile 의 일일 카운트를 올린다 — profile 저장은 기존 관례대로 호출부가
 ## `GameController.save_game()` 로 맡는다.
+##
+## 기준일은 앞으로만 넘어간다(#46). `!=` 로 비교하면 기기 시계를 과거로 되돌렸을 때도
+## "다른 날"로 보여 카운트가 0으로 풀린다. `>` 비교로 바꿔 되돌린 날짜는 새 하루로
+## 인정하지 않고, 마지막으로 인정한 기준일의 카운트에 계속 누적한다.
 static func record_shown(profile: Profile) -> void:
 	_session_count += 1
 	var today := _today()
-	if profile.ad_daily_key != today:
+	if profile.ad_daily_key == "" or today > profile.ad_daily_key:
 		profile.ad_daily_key = today
 		profile.ad_daily_count = 0
 	profile.ad_daily_count += 1
 
+## `record_shown()` 과 같은 이유로 `>` 비교를 쓴다 — 되돌린 날짜에서도 마지막으로
+## 인정한 기준일의 카운트를 그대로 본다.
 static func _daily_count(profile: Profile) -> int:
-	if profile.ad_daily_key != _today():
+	if profile.ad_daily_key == "":
+		return 0
+	if _today() > profile.ad_daily_key:
 		return 0
 	return profile.ad_daily_count
 

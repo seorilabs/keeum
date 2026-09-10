@@ -377,6 +377,64 @@ func _check_ad_gateway_gate(run: GameRun) -> bool:
 		return false
 	print("  ✓ 일일 캡 도달: 보너스 슬롯 버튼 사라짐 (#34)")
 
+	# [#46] 기기 날짜 역행 가드: 기준일을 정한 뒤 "오늘"을 과거로 돌려도 누적이 풀리지
+	# 않는다. 캡 여유가 남아 있으면 버튼이 계속 보이고(풀렸다면 여기서 사라져야 정상),
+	# 캡에 닿아 있으면 계속 막히며, 미래로 넘어가야만 정상적으로 새 하루가 열린다.
+	AdGateway.set_test_session_count(0)
+	AdGateway.set_test_today("2026-06-15")
+	profile.ad_daily_key = "2026-06-15"
+	profile.ad_daily_count = 5
+	AdGateway.set_test_today("2026-06-10")
+	if not AdGateway.can_open(profile):
+		push_error("UIHarness: 날짜를 과거로 되돌렸는데 캡 여유가 있어도 can_open()이 false입니다 (#46)")
+		main.get_tree().quit(1)
+		return false
+	main.goto("activity")
+	await _settle(0.4)
+	s = main.current_screen()
+	if s.get("_bonus_container") == null:
+		push_error("UIHarness: 날짜를 되돌렸더니 누적이 풀려 보너스 슬롯 버튼이 사라졌습니다 (#46)")
+		main.get_tree().quit(1)
+		return false
+	print("  ✓ 날짜 역행 + 캡 여유: 누적 유지, 버튼 그대로 (#46)")
+
+	var roundtrip_profile := Profile.from_dict(profile.to_dict())
+	if roundtrip_profile.ad_daily_key != "2026-06-15" or roundtrip_profile.ad_daily_count != 5:
+		push_error("UIHarness: 날짜 역행 상태가 Profile 저장·복원(to_dict/from_dict)을 건너 유지되지 않습니다 (#46)")
+		main.get_tree().quit(1)
+		return false
+	print("  ✓ 날짜 역행 상태가 Profile 저장·복원을 건너 유지됨 (#46)")
+
+	profile.ad_daily_key = "2026-06-15"
+	profile.ad_daily_count = AdGateway.DAILY_CAP
+	AdGateway.set_test_today("2026-06-10")
+	if AdGateway.can_open(profile):
+		push_error("UIHarness: 일일 캡에 닿은 상태에서 날짜를 되돌렸는데 can_open()이 true입니다 (#46)")
+		main.get_tree().quit(1)
+		return false
+	main.goto("activity")
+	await _settle(0.4)
+	s = main.current_screen()
+	if s.get("_bonus_container") != null:
+		push_error("UIHarness: 일일 캡 + 날짜 역행인데 보너스 슬롯 버튼이 보입니다 (#46)")
+		main.get_tree().quit(1)
+		return false
+	print("  ✓ 날짜 역행 + 캡 도달: 계속 막힘 (#46)")
+
+	AdGateway.set_test_today("2026-06-16")
+	if not AdGateway.can_open(profile):
+		push_error("UIHarness: 기준일 다음 날로 넘어갔는데 can_open()이 false입니다 (#46)")
+		main.get_tree().quit(1)
+		return false
+	main.goto("activity")
+	await _settle(0.4)
+	s = main.current_screen()
+	if s.get("_bonus_container") == null:
+		push_error("UIHarness: 기준일 다음 날로 넘어갔는데 보너스 슬롯 버튼이 안 보입니다 (#46)")
+		main.get_tree().quit(1)
+		return false
+	print("  ✓ 기준일 다음 날로 이동: 새 하루로 정상 오픈 (#46)")
+
 	AdGateway.reset_test_state()
 	profile.ad_daily_key = saved_key
 	profile.ad_daily_count = saved_count
