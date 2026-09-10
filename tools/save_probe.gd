@@ -174,8 +174,16 @@ func _run_scenarios(content: ContentDB) -> void:
 	_expect("무버전 가챠 천장 손실 없음", v0_controller.profile.gacha_pity == 5)
 	_expect("무버전 회차 기록 손실 없음", v0_controller.profile.run_records.size() == 1)
 	_expect("무버전 코스메틱 손실 없음", v0_controller.profile.owned_cosmetics == ["cap_basic"])
+	# 단순 로드는 파일을 다시 쓰지 않는다 — 격리 없는 헤드리스 도구가 로드만으로
+	# 디스크에 쓰기 시작하면 저장 격리 계약(#17·#20)이 깨진다. 최신 스키마 각인은
+	# 다음 실제 저장(save_game 등) 때 자연히 이뤄진다.
 	_expect(
-		"무버전 로드 후 최신 스키마로 승격 저장",
+		"무버전 로드만으로는 파일을 다시 쓰지 않는다",
+		int((LocalSave.load_data().get("schema_version", -1) if LocalSave.load_data().has("schema_version") else -1)) == -1
+	)
+	_expect("무버전 로드 뒤 실제 저장에서 최신 스키마로 승격", v0_controller.save_game())
+	_expect(
+		"승격된 파일 최상위에 현재 스키마 버전이 들어간다",
 		int(LocalSave.load_data().get("schema_version", -1)) == SaveSchema.CURRENT_VERSION
 	)
 	v0_controller.free()
