@@ -268,6 +268,8 @@ func _load_notice_text(status: String) -> String:
 			return "이전 저장이 손상돼 있어 직전 백업으로 복구했어요."
 		LocalSave.STATUS_CORRUPT:
 			return "저장 파일이 손상돼 새로 시작해요. 손상된 파일은 따로 보관했어요."
+		LocalSave.STATUS_FUTURE_VERSION:
+			return "더 최신 버전에서 만든 저장이라 이 버전에서는 불러올 수 없어요. 앱을 업데이트해 주세요. 기존 저장은 그대로 남아 있어요."
 		_:
 			return ""
 

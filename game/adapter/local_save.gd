@@ -19,6 +19,7 @@ const STATUS_OK := "ok"                # 본 파일 정상
 const STATUS_RECOVERED := "recovered"  # 본 파일 없음/손상 → 백업 세대에서 복구
 const STATUS_EMPTY := "empty"          # 세이브가 아예 없는 첫 실행
 const STATUS_CORRUPT := "corrupt"      # 본 파일·백업 모두 손상
+const STATUS_FUTURE_VERSION := "future_version"  # 이 코드가 아는 것보다 높은 스키마 버전(#45) — 파일 보존, 로드 거부
 
 ## 헤드리스 검증 도구가 실제 사용자 저장과 분리된 디렉터리를 이 값으로 알려줄 때만
 ## user:// 접근을 허용한다(#17). 값 자체가 아니라 실제 user:// 가 그 경로 아래에
@@ -84,16 +85,22 @@ static func load_result() -> Dictionary:
 	var primary_exists := FileAccess.file_exists(SAVE_PATH)
 	if primary_exists:
 		var parsed: Variant = _parse_quiet(FileAccess.get_file_as_string(SAVE_PATH))
-		if typeof(parsed) == TYPE_DICTIONARY:
+		if typeof(parsed) == TYPE_DICTIONARY and _looks_like_save(parsed):
 			return {"status": STATUS_OK, "data": parsed}
 	var backup_exists := FileAccess.file_exists(BACKUP_PATH)
 	if backup_exists:
 		var backup: Variant = _parse_quiet(FileAccess.get_file_as_string(BACKUP_PATH))
-		if typeof(backup) == TYPE_DICTIONARY:
+		if typeof(backup) == TYPE_DICTIONARY and _looks_like_save(backup):
 			return {"status": STATUS_RECOVERED, "data": backup}
 	if primary_exists or backup_exists:
 		return {"status": STATUS_CORRUPT, "data": {}}
 	return {"status": STATUS_EMPTY, "data": {}}
+
+## keeum 세이브 blob 모양인지 최소 판정한다(#45). 파싱만 되면 무조건 정상으로 보던
+## 이전 동작은 keeum 세이브가 아닌 임의 Dictionary JSON 도 STATUS_OK 로 판정했다.
+## 실제 필드 유효성은 Profile/GameRun 이 각자 담당하므로 여기서는 최소 문지방만 본다.
+static func _looks_like_save(parsed: Dictionary) -> bool:
+	return parsed.has("profile") or parsed.has("schema_version")
 
 ## 손상 파일 검사가 콘솔에 ERROR 를 남기지 않도록 인스턴스 JSON 파서를 쓴다.
 ## (JSON.parse_string 은 실패 시 자체 ERROR 로그를 남겨 헤드리스 게이트에 걸린다.)

@@ -3,6 +3,7 @@ extends RefCounted
 ## 영속 프로필. 회차를 넘어 유지되는 도감·프리미엄 통화·코스메틱·가챠 상태.
 ## 05-economy: 프리미엄=하드 화폐, 도감·해금·코스메틱은 persist.
 
+var schema_version: int = SaveSchema.CURRENT_VERSION  # #45: to_dict 가 기록하고 from_dict 가 판독한다
 var premium: int = Balance.START_PREMIUM  # 💎 하드 화폐
 var mileage: int = 0                      # 가챠 마일리지
 var gacha_pity: int = 0                   # 천장 카운트(40회)
@@ -36,6 +37,7 @@ func add_run_record(rec: Dictionary) -> void:
 
 func to_dict() -> Dictionary:
 	return {
+		"schema_version": schema_version,
 		"premium": premium, "mileage": mileage, "gacha_pity": gacha_pity,
 		"ad_removed": ad_removed, "total_runs": total_runs,
 		"ad_daily_key": ad_daily_key, "ad_daily_count": ad_daily_count,
@@ -47,6 +49,7 @@ func to_dict() -> Dictionary:
 
 static func from_dict(d: Dictionary) -> Profile:
 	var p := Profile.new()
+	p.schema_version = int(d.get("schema_version", 0))
 	p.premium = int(d.get("premium", Balance.START_PREMIUM))
 	p.mileage = int(d.get("mileage", 0))
 	p.gacha_pity = int(d.get("gacha_pity", 0))

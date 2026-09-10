@@ -23,6 +23,7 @@ var exposed := false         # 유혹 적발 여부
 var used_event_ids: Dictionary = {}   # once 이벤트 추적
 var ad_boost_used_gate: Dictionary = {}  # 전환기별 광고 부스트 사용
 
+var loaded_schema_version := SCHEMA_VERSION  # #45: load_from 이 실제로 채운다(이전엔 기록만 되고 읽는 코드가 없었다)
 var last_result: Dictionary = {}
 var pending_ending: Dictionary = {}
 var _steps: Array = []       # 인터루드 큐
@@ -552,6 +553,7 @@ func to_dict() -> Dictionary:
 	}
 
 func load_from(d: Dictionary) -> void:
+	loaded_schema_version = int(d.get("schema_version", 0))
 	child = Child.from_dict(d.get("child", {}))
 	household = Household.from_dict(d.get("household", {}))
 	turn_index = int(d.get("turn_index", 0))
