@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   checks:
-    uses: seorilabs/.github/.github/workflows/godot-checks.yml@ab9305632698fcb949d4c9df58cf18dbce73bef8
+    uses: seorilabs/.github/.github/workflows/godot-checks.yml@565fba53aa5053785c63c9b732b93a3fbd7be847
     with:
       godot_version: "4.7.2"
       with_export_templates: false
