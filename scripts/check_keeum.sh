@@ -35,6 +35,7 @@ trap cleanup EXIT
 
 # 검증 도구 자체가 격리 없이는 실제 저장을 건드리지 않는지 먼저 회귀 검사한다(#17).
 bash "$repo_root/scripts/check_save_isolation.sh"
+python3 "$repo_root/scripts/check_activity_art.py"
 
 # 세이브 스키마 버전 판독 지점을 지운 변이에서 회귀 검사가 실패하는지 확인한다(#45).
 bash "$repo_root/scripts/check_save_schema_self_test.sh"
