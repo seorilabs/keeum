@@ -11,9 +11,7 @@ AGENT.local.md
 *.import
 *.tmp
 
-# Generation sources and QA sheets stay in the local asset vault.
-/assets/art/raw/
-/assets/audio/raw/
+# QA sheets stay local.
 /assets/art/qa_sheet.png
 
 # vendoring한 Platform SDK 옆에 Godot이 만드는 .uid 사이드카.
