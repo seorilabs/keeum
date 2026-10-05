@@ -260,6 +260,13 @@
    "size": 256
   },
   {
+   "name": "act_family_talk",
+   "prompt": "two cozy rounded cream ceramic tea mugs facing one another on a tiny low wooden table, with one small coral heart-shaped speech bubble floating centered above and between the mugs, no people, no text",
+   "size": 256,
+   "provider": "Codex built-in",
+   "model": "gpt-image-2"
+  },
+  {
    "name": "act_rest_home",
    "prompt": "a fluffy cream pillow with a soft blanket",
    "size": 256
